@@ -1,0 +1,34 @@
+{
+  "name": "china-daylight-atlas",
+  "version": "1.0.0",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "typecheck": "vue-tsc --noEmit",
+    "data:prepare": "node scripts/prepare-map-data.mjs",
+    "data:check": "node scripts/check-map-data.mjs",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@vuepic/vue-datepicker": "14.0.0",
+    "astronomy-engine": "2.1.19",
+    "date-fns": "4.4.0",
+    "maplibre-gl": "^5.0.0",
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "@types/geojson": "^7946.0.16",
+    "@types/node": "^22.0.0",
+    "@vitejs/plugin-vue": "^5.2.0",
+    "typescript": "~5.7.0",
+    "vite": "^6.1.0",
+    "vitest": "^3.0.0",
+    "vue-tsc": "^2.2.0"
+  }
+}

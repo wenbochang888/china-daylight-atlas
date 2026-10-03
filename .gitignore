@@ -1,0 +1,41 @@
+# 依赖与构建产物
+node_modules/
+dist/
+.vite/
+
+# 测试输出与覆盖率
+playwright-report/
+test-results/
+coverage/
+
+# 日志与系统文件
+*.log
+.DS_Store
+Thumbs.db
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+
+# 本地环境配置，保留可提交的示例
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# 本地 IDE 配置
+.idea/
+
+# 未使用的候选音乐；现用钢琴曲仍保留
+/src/mp3/菊次郎的夏天.mp3
+
+# 不参与正式生成流程的研究材料
+/data/source/admin-codes-2023.txt
+/data/source/provinces.json
+/data/source/cities.json
+/data/source/counties.json
+
+# 本地设计参考，不影响产品截图
+/1.MP4
+/2.MP4
+/中国立体地形图.png

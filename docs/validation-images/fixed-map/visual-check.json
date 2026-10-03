@@ -1,0 +1,1156 @@
+{
+  "checkedAt": "2026-10-03T13:23:15.551Z",
+  "results": [
+    {
+      "name": "mobile-360-single",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 342,
+          "height": 376
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "mobile-360-calendar",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 342,
+          "height": 376
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": true,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "mobile-360-date-picker",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 342,
+          "height": 376
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": true,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "mobile-360-compare",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 342,
+          "height": 344
+        },
+        {
+          "width": 342,
+          "height": 343
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ],
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "mobile-360-details",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 342,
+          "height": 376
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": true,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "mobile-390-single",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 372,
+          "height": 420
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "mobile-390-calendar",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 372,
+          "height": 420
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": true,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "mobile-390-date-picker",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 372,
+          "height": 420
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": true,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "mobile-390-compare",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 372,
+          "height": 344
+        },
+        {
+          "width": 372,
+          "height": 343
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ],
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "mobile-390-details",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 372,
+          "height": 420
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": true,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "tablet-single",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 734,
+          "height": 673
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "tablet-calendar",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 734,
+          "height": 673
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": true,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "tablet-date-picker",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 734,
+          "height": 673
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": true,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "tablet-compare",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 734,
+          "height": 440
+        },
+        {
+          "width": 734,
+          "height": 439
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ],
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "tablet-details",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 734,
+          "height": 673
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": true,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "landscape-single",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 810,
+          "height": 560
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "landscape-calendar",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 810,
+          "height": 560
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": true,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "landscape-date-picker",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 810,
+          "height": 560
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": true,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "landscape-compare",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 810,
+          "height": 440
+        },
+        {
+          "width": 810,
+          "height": 439
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ],
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "landscape-details",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 810,
+          "height": 560
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": true,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "laptop-single",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 922,
+          "height": 434
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "laptop-calendar",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 922,
+          "height": 434
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "laptop-date-picker",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 922,
+          "height": 434
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "laptop-compare",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 461,
+          "height": 194
+        },
+        {
+          "width": 460,
+          "height": 194
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ],
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "laptop-details",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 922,
+          "height": 434
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "narrow-dual-single",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1002,
+          "height": 614
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "narrow-dual-calendar",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1002,
+          "height": 614
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "narrow-dual-date-picker",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1002,
+          "height": 614
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "narrow-dual-compare",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 501,
+          "height": 374
+        },
+        {
+          "width": 500,
+          "height": 374
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ],
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "narrow-dual-details",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1002,
+          "height": 614
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "desktop-single",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1082,
+          "height": 614
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "desktop-calendar",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1082,
+          "height": 614
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "desktop-date-picker",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1082,
+          "height": 614
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "desktop-compare",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 541,
+          "height": 374
+        },
+        {
+          "width": 540,
+          "height": 374
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ],
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "desktop-details",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1082,
+          "height": 614
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "wide-single",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1562,
+          "height": 781
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "wide-calendar",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1562,
+          "height": 781
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "wide-date-picker",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1562,
+          "height": 781
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "wide-compare",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 781,
+          "height": 781
+        },
+        {
+          "width": 780,
+          "height": 781
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ],
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "wide-details",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1562,
+          "height": 781
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "webkit-calendar",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 372,
+          "height": 420
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": true,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "webkit-night",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 372,
+          "height": 420
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "national-night",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1082,
+          "height": 614
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "national-dawn",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1082,
+          "height": 614
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "national-noon",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1082,
+          "height": 614
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "compare-seasons",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 541,
+          "height": 374
+        },
+        {
+          "width": 540,
+          "height": 374
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ],
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "name": "loading",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1082,
+          "height": 614
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false,
+      "islandLabels": [
+        []
+      ]
+    },
+    {
+      "name": "resource-error",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 342,
+          "height": 376
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": false,
+      "islandLabels": [
+        []
+      ]
+    }
+  ],
+  "errors": []
+}

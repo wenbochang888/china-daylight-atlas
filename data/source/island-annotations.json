@@ -1,0 +1,23 @@
+{
+  "namesSource": "https://www.thesouthchinasea.org.cn/cn/2016-07/25/c_53879.html",
+  "diaoyuSource": "https://www.fmprc.gov.cn/diaoyudao/chn/zrhj/201510/t20151009_8520998.htm",
+  "huangyanSource": "https://gq.china-embassy.gov.cn/zxxx/202412/t20241218_11497883.htm",
+  "zengmuSource": "https://zjjcmspublic.oss-cn-hangzhou-zwynet-d01-a.internet.cloud.zj.gov.cn/jcms_files/jcms1/web2476/site/attach/0/中国边疆地理（海疆）.pdf",
+  "points": [
+    { "name":"东沙群岛", "kind":"group", "coordinates":[116.7166666667,20.7], "positionBasis":"国家海洋信息中心公布位置" },
+    { "name":"西沙群岛", "kind":"group", "regionAnchor":"156460321", "positionBasis":"天地图西沙区官方地图标注点，作群岛名称的绘图锚点" },
+    { "name":"中沙群岛", "kind":"group", "geometryAnchor":"zhongsha", "positionBasis":"天地图西沙区中沙大环礁原始部件外包框中心，作群岛名称的绘图锚点" },
+    { "name":"南沙群岛", "kind":"group", "regionAnchor":"156460322", "positionBasis":"天地图南沙区官方地图标注点，作群岛名称的绘图锚点" },
+    { "name":"黄岩岛", "kind":"island", "coordinates":[117.8483333333,15.135], "positionBasis":"政府公布黄岩岛1基点，文字绘图锚点" },
+    { "name":"曾母暗沙", "kind":"island", "coordinates":[112.2798611111,3.9666666667], "positionBasis":"政府公开中国边疆地理（海疆）中的坐标范围中心，文字绘图锚点" },
+    { "name":"钓鱼岛及其附属岛屿", "kind":"diaoyu-group", "coordinates":[123.4733333333,25.7433333333], "positionBasis":"国家海洋局公布钓鱼岛坐标" },
+    { "name":"钓鱼岛", "kind":"diaoyu-island", "coordinates":[123.4733333333,25.7433333333] },
+    { "name":"黄尾屿", "kind":"diaoyu-island", "coordinates":[123.6816666667,25.9233333333] },
+    { "name":"赤尾屿", "kind":"diaoyu-island", "coordinates":[124.5583333333,25.9216666667] },
+    { "name":"北小岛", "kind":"diaoyu-island", "coordinates":[123.5416666667,25.73] },
+    { "name":"南小岛", "kind":"diaoyu-island", "coordinates":[123.55,25.7233333333] },
+    { "name":"北屿", "kind":"diaoyu-island", "coordinates":[123.5433333333,25.7816666667] },
+    { "name":"南屿", "kind":"diaoyu-island", "coordinates":[123.5666666667,25.755] },
+    { "name":"飞屿", "kind":"diaoyu-island", "coordinates":[123.5066666667,25.735] }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "browserMode": "full Chromium, headless",
+  "before": {
+    "memoryBytes": 47945762,
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Pro, Unspecified Version)",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
+  },
+  "windows": [
+    {
+      "frames": 1801,
+      "p95FrameMs": 16.700000000000728,
+      "heapBytes": 54411088,
+      "scene": {
+        "documentHidden": false,
+        "dates": [
+          "2026.06.21",
+          "2025.12.21"
+        ],
+        "time": "07:34",
+        "playing": true,
+        "levels": [
+          "省级",
+          "省级"
+        ],
+        "viewports": [
+          {
+            "width": 458,
+            "height": 850
+          },
+          {
+            "width": 457,
+            "height": 850
+          }
+        ]
+      }
+    }
+  ],
+  "seconds": 30,
+  "restarts": 0,
+  "mode": "two dates (summer/winter), national view, automatic 60/10 minutes/second; harness restarts only at 24:00",
+  "url": "http://127.0.0.1:4173",
+  "newMapRequestsDuringPlayback": 0,
+  "mapRequestsDuringPlayback": [],
+  "errors": []
+}

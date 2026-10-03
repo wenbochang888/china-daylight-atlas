@@ -1,0 +1,42 @@
+{
+  "before": {
+    "memoryBytes": 58213805,
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Pro, Unspecified Version)"
+  },
+  "windows": [
+    {
+      "frames": 3601,
+      "p95FrameMs": 9.199999999999818,
+      "heapBytes": 31308686,
+      "scene": {
+        "dates": [
+          "2026.10.02",
+          "2026.10.01"
+        ],
+        "time": "04:54",
+        "playing": true,
+        "levels": [
+          "省级",
+          "省级"
+        ],
+        "selected": null,
+        "viewports": [
+          {
+            "width": 550,
+            "height": 644
+          },
+          {
+            "width": 549,
+            "height": 644
+          }
+        ]
+      }
+    }
+  ],
+  "seconds": 30,
+  "mode": "two dates, national view, loop 60 minutes/second",
+  "url": "http://127.0.0.1:4173",
+  "newMapRequestsDuringPlayback": 0,
+  "mapRequestsDuringPlayback": [],
+  "errors": []
+}

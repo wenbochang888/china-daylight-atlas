@@ -1,0 +1,297 @@
+{
+  "browserMode": "full Chromium, headless",
+  "before": {
+    "memoryBytes": 48250935,
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Pro, Unspecified Version)",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
+  },
+  "windows": [
+    {
+      "frames": 3602,
+      "p95FrameMs": 16.799999999995634,
+      "heapBytes": 56409896,
+      "scene": {
+        "documentHidden": false,
+        "dates": [
+          "2026.06.21",
+          "2025.12.21"
+        ],
+        "time": "16:30",
+        "playing": true,
+        "levels": [
+          "省级",
+          "省级"
+        ],
+        "viewports": [
+          {
+            "width": 525,
+            "height": 774
+          },
+          {
+            "width": 524,
+            "height": 774
+          }
+        ]
+      }
+    },
+    {
+      "frames": 3601,
+      "p95FrameMs": 16.79999999998836,
+      "heapBytes": 51616192,
+      "scene": {
+        "documentHidden": false,
+        "dates": [
+          "2026.06.21",
+          "2025.12.21"
+        ],
+        "time": "06:07",
+        "playing": true,
+        "levels": [
+          "省级",
+          "省级"
+        ],
+        "viewports": [
+          {
+            "width": 525,
+            "height": 774
+          },
+          {
+            "width": 524,
+            "height": 774
+          }
+        ]
+      }
+    },
+    {
+      "frames": 3601,
+      "p95FrameMs": 16.70000000001164,
+      "heapBytes": 43029146,
+      "scene": {
+        "documentHidden": false,
+        "dates": [
+          "2026.06.21",
+          "2025.12.21"
+        ],
+        "time": "20:04",
+        "playing": true,
+        "levels": [
+          "省级",
+          "省级"
+        ],
+        "viewports": [
+          {
+            "width": 525,
+            "height": 774
+          },
+          {
+            "width": 524,
+            "height": 774
+          }
+        ]
+      }
+    },
+    {
+      "frames": 3601,
+      "p95FrameMs": 16.79999999998836,
+      "heapBytes": 35694286,
+      "scene": {
+        "documentHidden": false,
+        "dates": [
+          "2026.06.21",
+          "2025.12.21"
+        ],
+        "time": "09:41",
+        "playing": true,
+        "levels": [
+          "省级",
+          "省级"
+        ],
+        "viewports": [
+          {
+            "width": 525,
+            "height": 774
+          },
+          {
+            "width": 524,
+            "height": 774
+          }
+        ]
+      }
+    },
+    {
+      "frames": 3601,
+      "p95FrameMs": 16.70000000001164,
+      "heapBytes": 29995638,
+      "scene": {
+        "documentHidden": false,
+        "dates": [
+          "2026.06.21",
+          "2025.12.21"
+        ],
+        "time": "03:15",
+        "playing": true,
+        "levels": [
+          "省级",
+          "省级"
+        ],
+        "viewports": [
+          {
+            "width": 525,
+            "height": 774
+          },
+          {
+            "width": 524,
+            "height": 774
+          }
+        ]
+      }
+    },
+    {
+      "frames": 3601,
+      "p95FrameMs": 16.70000000001164,
+      "heapBytes": 47749700,
+      "scene": {
+        "documentHidden": false,
+        "dates": [
+          "2026.06.21",
+          "2025.12.21"
+        ],
+        "time": "17:12",
+        "playing": true,
+        "levels": [
+          "省级",
+          "省级"
+        ],
+        "viewports": [
+          {
+            "width": 525,
+            "height": 774
+          },
+          {
+            "width": 524,
+            "height": 774
+          }
+        ]
+      }
+    },
+    {
+      "frames": 3601,
+      "p95FrameMs": 16.70000000001164,
+      "heapBytes": 51889917,
+      "scene": {
+        "documentHidden": false,
+        "dates": [
+          "2026.06.21",
+          "2025.12.21"
+        ],
+        "time": "06:49",
+        "playing": true,
+        "levels": [
+          "省级",
+          "省级"
+        ],
+        "viewports": [
+          {
+            "width": 525,
+            "height": 774
+          },
+          {
+            "width": 524,
+            "height": 774
+          }
+        ]
+      }
+    },
+    {
+      "frames": 3601,
+      "p95FrameMs": 16.70000000001164,
+      "heapBytes": 32572374,
+      "scene": {
+        "documentHidden": false,
+        "dates": [
+          "2026.06.21",
+          "2025.12.21"
+        ],
+        "time": "20:46",
+        "playing": true,
+        "levels": [
+          "省级",
+          "省级"
+        ],
+        "viewports": [
+          {
+            "width": 525,
+            "height": 774
+          },
+          {
+            "width": 524,
+            "height": 774
+          }
+        ]
+      }
+    },
+    {
+      "frames": 3601,
+      "p95FrameMs": 16.70000000006985,
+      "heapBytes": 41503603,
+      "scene": {
+        "documentHidden": false,
+        "dates": [
+          "2026.06.21",
+          "2025.12.21"
+        ],
+        "time": "10:26",
+        "playing": true,
+        "levels": [
+          "省级",
+          "省级"
+        ],
+        "viewports": [
+          {
+            "width": 525,
+            "height": 774
+          },
+          {
+            "width": 524,
+            "height": 774
+          }
+        ]
+      }
+    },
+    {
+      "frames": 3601,
+      "p95FrameMs": 16.70000000006985,
+      "heapBytes": 56341133,
+      "scene": {
+        "documentHidden": false,
+        "dates": [
+          "2026.06.21",
+          "2025.12.21"
+        ],
+        "time": "03:57",
+        "playing": true,
+        "levels": [
+          "省级",
+          "省级"
+        ],
+        "viewports": [
+          {
+            "width": 525,
+            "height": 774
+          },
+          {
+            "width": 524,
+            "height": 774
+          }
+        ]
+      }
+    }
+  ],
+  "seconds": 600,
+  "restarts": 6,
+  "mode": "two dates (summer/winter), national view, automatic 60/10 minutes/second; harness restarts only at 24:00",
+  "url": "http://127.0.0.1:4173",
+  "newMapRequestsDuringPlayback": 0,
+  "mapRequestsDuringPlayback": [],
+  "errors": []
+}

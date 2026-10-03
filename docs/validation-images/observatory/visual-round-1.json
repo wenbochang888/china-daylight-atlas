@@ -1,0 +1,470 @@
+{
+  "checkedAt": "2026-10-03T04:59:59.455Z",
+  "results": [
+    {
+      "name": "mobile-360-single",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 342,
+          "height": 592
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": false
+    },
+    {
+      "name": "mobile-360-calendar",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 342,
+          "height": 592
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": true
+    },
+    {
+      "name": "mobile-360-compare",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 342,
+          "height": 440
+        },
+        {
+          "width": 342,
+          "height": 439
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": false
+    },
+    {
+      "name": "mobile-360-details",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 342,
+          "height": 592
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": true
+    },
+    {
+      "name": "mobile-390-single",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 372,
+          "height": 636
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": false
+    },
+    {
+      "name": "mobile-390-calendar",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 372,
+          "height": 636
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": true
+    },
+    {
+      "name": "mobile-390-compare",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 372,
+          "height": 440
+        },
+        {
+          "width": 372,
+          "height": 439
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": false
+    },
+    {
+      "name": "mobile-390-details",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 372,
+          "height": 636
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": true
+    },
+    {
+      "name": "tablet-single",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 734,
+          "height": 757
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": false
+    },
+    {
+      "name": "tablet-calendar",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 734,
+          "height": 757
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": true
+    },
+    {
+      "name": "tablet-compare",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 734,
+          "height": 440
+        },
+        {
+          "width": 734,
+          "height": 439
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": false
+    },
+    {
+      "name": "tablet-details",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 734,
+          "height": 757
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": true
+    },
+    {
+      "name": "landscape-single",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 810,
+          "height": 560
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": false
+    },
+    {
+      "name": "landscape-calendar",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 810,
+          "height": 560
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": true
+    },
+    {
+      "name": "landscape-compare",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 810,
+          "height": 440
+        },
+        {
+          "width": 810,
+          "height": 439
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": false
+    },
+    {
+      "name": "landscape-details",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 810,
+          "height": 560
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": true
+    },
+    {
+      "name": "laptop-single",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 890,
+          "height": 494
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false
+    },
+    {
+      "name": "laptop-calendar",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 890,
+          "height": 494
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false
+    },
+    {
+      "name": "laptop-compare",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 890,
+          "height": 440
+        },
+        {
+          "width": 890,
+          "height": 439
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false
+    },
+    {
+      "name": "laptop-details",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 890,
+          "height": 494
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false
+    },
+    {
+      "name": "narrow-dual-single",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 970,
+          "height": 674
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false
+    },
+    {
+      "name": "narrow-dual-calendar",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 970,
+          "height": 674
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false
+    },
+    {
+      "name": "narrow-dual-compare",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 485,
+          "height": 674
+        },
+        {
+          "width": 484,
+          "height": 674
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false
+    },
+    {
+      "name": "narrow-dual-details",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 970,
+          "height": 674
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false
+    },
+    {
+      "name": "desktop-single",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1050,
+          "height": 674
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false
+    },
+    {
+      "name": "desktop-calendar",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1050,
+          "height": 674
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false
+    },
+    {
+      "name": "desktop-compare",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 525,
+          "height": 674
+        },
+        {
+          "width": 524,
+          "height": 674
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false
+    },
+    {
+      "name": "desktop-details",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1050,
+          "height": 674
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false
+    },
+    {
+      "name": "wide-single",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1510,
+          "height": 825
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false
+    },
+    {
+      "name": "wide-calendar",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1510,
+          "height": 825
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false
+    },
+    {
+      "name": "wide-compare",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 755,
+          "height": 825
+        },
+        {
+          "width": 754,
+          "height": 825
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false
+    },
+    {
+      "name": "wide-details",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1510,
+          "height": 825
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false
+    },
+    {
+      "name": "webkit-calendar",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 372,
+          "height": 636
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": true
+    },
+    {
+      "name": "webkit-night",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 372,
+          "height": 636
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": false
+    },
+    {
+      "name": "loading",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 1050,
+          "height": 674
+        }
+      ],
+      "seasonGroups": 4,
+      "dialogOpen": false
+    },
+    {
+      "name": "resource-error",
+      "overflow": false,
+      "maps": [
+        {
+          "width": 342,
+          "height": 592
+        }
+      ],
+      "seasonGroups": 0,
+      "dialogOpen": false
+    }
+  ],
+  "errors": []
+}
