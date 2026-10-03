@@ -1,0 +1,121 @@
+{
+  "capturedAt": "2026-10-03T15:25:25.631Z",
+  "browser": "Chromium",
+  "results": [
+    {
+      "file": "desktop.png",
+      "viewport": {
+        "width": 1600,
+        "height": 1000
+      },
+      "bytes": 301822,
+      "overflow": false,
+      "dates": [
+        "2026.10.03"
+      ],
+      "time": "18:00",
+      "provinceLabels": [
+        34
+      ],
+      "insetLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "file": "compare-solstices.png",
+      "viewport": {
+        "width": 1800,
+        "height": 1000
+      },
+      "bytes": 403966,
+      "overflow": false,
+      "dates": [
+        "2026.06.21",
+        "2026.12.22"
+      ],
+      "time": "07:00",
+      "provinceLabels": [
+        34,
+        34
+      ],
+      "insetLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ],
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "file": "mobile.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "bytes": 120869,
+      "overflow": false,
+      "dates": [
+        "2026.10.03"
+      ],
+      "time": "18:00",
+      "provinceLabels": [
+        34
+      ],
+      "insetLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    },
+    {
+      "file": "social-preview.png",
+      "viewport": {
+        "width": 1600,
+        "height": 800
+      },
+      "bytes": 234044,
+      "overflow": false,
+      "dates": [
+        "2026.10.03"
+      ],
+      "time": "18:00",
+      "provinceLabels": [
+        34
+      ],
+      "insetLabels": [
+        [
+          "曾母暗沙",
+          "黄岩岛",
+          "南沙群岛",
+          "中沙群岛",
+          "西沙群岛",
+          "东沙群岛"
+        ]
+      ]
+    }
+  ],
+  "errors": []
+}
