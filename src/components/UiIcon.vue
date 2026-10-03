@@ -1,8 +1,10 @@
 <script setup lang="ts">
-defineProps<{ name: 'sun' | 'play' | 'pause' | 'close' | 'compare' | 'home' | 'plus' | 'minus' | 'extent' | 'arrow' | 'pin' | 'calendar' | 'sunrise' | 'sunset' }>();
+defineProps<{ name: 'sun' | 'play' | 'pause' | 'volume' | 'mute' | 'close' | 'compare' | 'home' | 'plus' | 'minus' | 'extent' | 'arrow' | 'pin' | 'calendar' | 'sunrise' | 'sunset' }>();
 const paths = {
   sun: 'M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4M5.6 18.4 7 17m10-10 1.4-1.4',
   play: 'm9 5 10 7-10 7Z', pause: 'M9 5v14m6-14v14', close: 'm6 6 12 12M18 6 6 18',
+  volume: 'M11 4 6 8H3v8h3l5 4ZM15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14',
+  mute: 'M11 4 6 8H3v8h3l5 4ZM16 9l6 6m0-6-6 6',
   compare: 'M3 5h18v14H3ZM12 5v14', home: 'm3 11 9-8 9 8M5 10v11h14V10M10 21v-7h4v7',
   plus: 'M5 12h14M12 5v14', minus: 'M5 12h14', extent: 'M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6',
   arrow: 'M4 12h15m-6-6 6 6-6 6', pin: 'M12 21s7-6 7-12a7 7 0 0 0-14 0c0 6 7 12 7 12Z',

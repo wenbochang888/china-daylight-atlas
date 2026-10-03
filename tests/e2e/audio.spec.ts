@@ -24,6 +24,49 @@ async function musicPlaying(page:Page) {
 }
 async function time(page:Page) { return page.locator('audio').evaluate((audio: HTMLAudioElement)=>audio.currentTime); }
 
+test('音乐选择可记忆，关闭状态播放地图不下载MP3，暂停时开启不发声',async({page})=>{
+  const requests:string[]=[];page.on('request',r=>{if(r.url().endsWith('.mp3'))requests.push(r.url());});
+  await page.goto('/');await ready(page);await expect(page.getByRole('button',{name:'关闭音乐',exact:true})).toHaveAttribute('aria-pressed','true');
+  await page.getByRole('button',{name:'关闭音乐',exact:true}).click();
+  await page.getByRole('button',{name:'开始播放',exact:true}).click();
+  await expect.poll(async()=>Number(await page.getByRole('slider',{name:'北京时间时间轴'}).inputValue())).toBeGreaterThan(1);
+  expect(requests).toEqual([]);expect(await page.locator('audio').evaluate((a:HTMLAudioElement)=>a.paused)).toBe(true);
+  await page.reload();await ready(page);await expect(page.getByRole('button',{name:'开启音乐',exact:true})).toHaveAttribute('aria-pressed','false');
+  await expect(page.getByTestId('clock')).toHaveText('00:00');
+  await page.getByRole('button',{name:'开启音乐',exact:true}).click();expect(requests).toEqual([]);
+  await page.getByRole('slider',{name:'北京时间时间轴'}).fill('360');
+  await page.getByRole('button',{name:'开始播放',exact:true}).click();await musicPlaying(page);
+  expect(await time(page)).toBeGreaterThanOrEqual(expectedSeconds(360));
+});
+
+test('播放中关闭声音不暂停地图，重新开启对齐当前音乐位置，键盘可以切换',async({page})=>{
+  await page.goto('/');await ready(page);await page.getByRole('button',{name:'开始播放',exact:true}).click();await musicPlaying(page);
+  await page.getByRole('button',{name:'关闭音乐',exact:true}).click();
+  const before=Number(await page.getByRole('slider',{name:'北京时间时间轴'}).inputValue());
+  await expect.poll(async()=>Number(await page.getByRole('slider',{name:'北京时间时间轴'}).inputValue())).toBeGreaterThan(before+1);
+  expect(await page.locator('audio').evaluate((a:HTMLAudioElement)=>a.paused)).toBe(true);
+  await expect(page.getByRole('button',{name:'暂停播放',exact:true})).toBeVisible();
+  await page.getByRole('slider',{name:'北京时间时间轴'}).fill('720');
+  await page.getByRole('button',{name:'开始播放',exact:true}).click();
+  const toggle=page.getByRole('button',{name:'开启音乐',exact:true});await toggle.focus();await toggle.press('Enter');await musicPlaying(page);
+  const current=await page.evaluate(()=>({minute:Number((document.querySelector('input[type="range"]') as HTMLInputElement).value),seconds:(document.querySelector('audio') as HTMLAudioElement).currentTime}));
+  expect(Math.abs(current.seconds-expectedSeconds(current.minute))).toBeLessThan(0.2);
+  await page.getByRole('button',{name:'关闭音乐',exact:true}).focus();await page.keyboard.press('Space');
+  expect(await page.locator('audio').evaluate((a:HTMLAudioElement)=>a.paused)).toBe(true);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+test('本地存储被禁用时音乐开关仍可使用，关闭时隐藏故障提示',async({page})=>{
+  await page.addInitScript(()=>{
+    Object.defineProperty(window,'localStorage',{get(){throw new DOMException('blocked','SecurityError');}});
+    HTMLMediaElement.prototype.play=function(){return Promise.reject(new DOMException('blocked','NotAllowedError'));};
+  });
+  await page.goto('/');await ready(page);await page.getByRole('button',{name:'开始播放',exact:true}).click();
+  await expect(page.locator('.audio-notice')).toBeVisible();await page.getByRole('button',{name:'关闭音乐',exact:true}).click();
+  await expect(page.locator('.audio-notice')).toHaveCount(0);await expect(page.getByRole('button',{name:'暂停播放',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'开启音乐',exact:true}).click();await expect(page.locator('.audio-notice')).toBeVisible();
+});
+
 test('初始不下载音乐，播放暂停续播及时间轴操作联动唯一音频',async({page})=>{
   const requests:string[]=[]; page.on('request',request=>{if(request.url().endsWith('.mp3'))requests.push(request.url());});
   await page.goto('/'); await ready(page);

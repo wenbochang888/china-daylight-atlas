@@ -9,7 +9,7 @@ try{
   page.on('request',r=>{if(r.url().includes('/maps/'))requests.push(r.url());});page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:4173');await expect(page.getByRole('button',{name:'开始播放',exact:true})).toBeEnabled({timeout:30000});
   await page.getByRole('button',{name:'两天对比',exact:true}).click();
-  await expect(page.getByText('正在加载官方地图')).toHaveCount(0,{timeout:30000});
+  await expect(page.getByText('正在准备地图…')).toHaveCount(0,{timeout:30000});
   await page.locator('.term-button').filter({hasText:'夏至'}).click();await page.getByRole('button',{name:'暂停播放',exact:true}).click();
   await page.getByRole('button',{name:'节气应用于日期 2',exact:true}).click();
   await page.locator('.term-button').filter({hasText:'冬至'}).click();

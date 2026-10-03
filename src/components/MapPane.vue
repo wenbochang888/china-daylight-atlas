@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import maplibregl, { type Map as LibreMap } from 'maplibre-gl';
-import type { FeatureCollection } from 'geojson';
 import type { Camera, Region, SunVector } from '../domain/types';
-import { resource, MAX_BROWSE_ZOOM } from '../data/map-repository';
+import { MAX_BROWSE_ZOOM } from '../data/map-repository';
 import { formatMinute } from '../domain/beijing-time';
 import { emptyCollection, highlight, installLayers, mapStyle, resizeProvinceLabels } from '../map/layers';
-import { mainMapPresentation, provinceLabelPresentation } from '../map/presentation';
+import { nationalPresentation } from '../map/national-presentation';
 import type { SolarLayer } from '../map/solar-layer';
 
 const props = defineProps<{ date: string; minute: number; vector: SunVector; selected: Region | null; camera: Camera | null; number: number }>();
@@ -81,13 +80,10 @@ async function initialize() {
   loading.value = true; error.value = ''; disposed = false; renderFailed = false; mainReady = false; insetReady = false; emit('status','loading');
   const attempt = ++generation;
   try {
-    const [provinces, boundaries, rawLabels, islandLabels] = await Promise.all([
-      resource<FeatureCollection>('provinces.json'), resource<FeatureCollection>('context/boundaries.json'), resource<FeatureCollection>('labels.json'),
-      resource<FeatureCollection>('context/island-labels.json'),
-    ]);
+    const { provinces, boundaries, islandLabels, main: presentation, provinceLabels: labels } = nationalPresentation();
+    await nextTick();
     if (disposed || attempt !== generation || !container.value || !insetContainer.value) return;
-    const presentation = mainMapPresentation(provinces, boundaries); nationalBounds = presentation.bounds;
-    const labels = provinceLabelPresentation(rawLabels, presentation.provinces); provinceLabels = labels;
+    nationalBounds = presentation.bounds; provinceLabels = labels;
     narrowMap.value = container.value.clientWidth < 600;
     provinceCenters = new Map(labels.features.flatMap(f => f.geometry.type === 'Point' ? [[String(f.properties?.id), f.geometry.coordinates.slice(0,2) as [number,number]] as const] : []));
     map = new maplibregl.Map({ container: container.value, style: structuredClone(mapStyle), center: [104,35], zoom: 3,
@@ -166,7 +162,7 @@ defineExpose({ isLoaded: () => !!map?.loaded(), getView: () => map ? { center: m
       <span>北京时间</span><strong data-testid="map-clock">{{formatMinute(minute)}}</strong>
     </div>
     <div class="south-sea" aria-label="南海诸岛附图"><div class="inset-title">南海诸岛</div><div ref="insetContainer" class="inset-canvas"></div></div>
-    <div v-if="loading" class="map-message" role="status"><span class="spinner"></span>正在加载官方地图</div>
+    <div v-if="loading" class="map-message" role="status"><span class="spinner"></span>正在准备地图…</div>
     <div v-if="error" class="map-error" role="alert"><span>{{error}}</span><button @click="retry">重试</button></div>
   </section>
 </template>

@@ -7,7 +7,7 @@ mkdirSync(output, { recursive: true });
 const panelsOnly = process.argv.includes('--panels-only');
 const results = [], errors = [];
 async function ready(page) {
-  await expect(page.getByText('正在加载官方地图')).toHaveCount(0, { timeout: 30000 });
+  await expect(page.getByText('正在准备地图…')).toHaveCount(0, { timeout: 30000 });
   await expect(page.getByRole('button', { name: '开始播放', exact: true })).toBeEnabled({ timeout: 30000 });
 }
 async function datePanel(page) {
@@ -100,13 +100,21 @@ try {
     await page.close();
   }
   const loading = await chrome.newPage({ viewport: { width: 1440, height: 900 } });
-  let release;
-  const gate = new Promise(resolve => release = resolve);
-  await loading.route('**/maps/provinces.json', async route => { await gate; await route.continue(); });
-  await loading.goto('http://127.0.0.1:5173'); await expect(loading.getByText('正在加载官方地图')).toBeVisible();
-  await shot(loading, 'loading'); release(); await ready(loading); await loading.close();
+  await loading.addInitScript(()=>{
+    const frame=window.requestAnimationFrame.bind(window),cancel=window.cancelAnimationFrame.bind(window);
+    const held=new Map();let blocked=true,next=-1;
+    window.requestAnimationFrame=callback=>{if(!blocked)return frame(callback);const id=next--;held.set(id,callback);return id;};
+    window.cancelAnimationFrame=id=>{if(id<0)held.delete(id);else cancel(id);};
+    window.__resumeRendering=()=>{blocked=false;for(const callback of held.values())frame(callback);held.clear();};
+  });
+  await loading.goto('http://127.0.0.1:5173'); await expect(loading.getByText('正在准备地图…')).toBeVisible();
+  await shot(loading, 'loading'); await loading.evaluate(()=>window.__resumeRendering()); await ready(loading); await loading.close();
   const failed = await chrome.newPage({ viewport: { width: 360, height: 800 } });
-  await failed.route('**/maps/provinces.json', route => route.abort()); await failed.goto('http://127.0.0.1:5173');
+  await failed.addInitScript(()=>{
+    const original=HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext=function(type,...args){if(type==='webgl'||type==='webgl2'||type==='experimental-webgl')return null;return original.call(this,type,...args);};
+  });
+  await failed.goto('http://127.0.0.1:5173');
   await expect(failed.locator('.map-error')).toBeVisible(); await shot(failed, 'resource-error'); await failed.close();
   if (errors.length) throw new Error(errors.join('\n'));
   writeFileSync(`${output}/visual-check.json`, JSON.stringify({ checkedAt: new Date().toISOString(), results, errors }, null, 2));

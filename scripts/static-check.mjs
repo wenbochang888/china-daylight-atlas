@@ -8,7 +8,8 @@ import { resolve, extname, sep } from 'node:path';
 const root = resolve('dist');
 const mime = { '.html':'text/html', '.js':'text/javascript', '.css':'text/css', '.json':'application/json', '.mp3':'audio/mpeg' };
 const audioCheck = process.argv.includes('--audio') || process.argv.includes('--audio-timeline');
-const outputDirectory = process.argv.includes('--audio-timeline') ? 'docs/validation-images/audio-timeline' : process.argv.includes('--fixed-map') ? 'docs/validation-images/fixed-map' : audioCheck ? 'docs/validation-images/playback-audio' : process.argv.includes('--controls') ? 'docs/validation-images/controls-playback' : 'docs/validation-images/observatory';
+const startupCheck = process.argv.includes('--startup-music');
+const outputDirectory = process.argv.includes('--startup-music') ? 'docs/validation-images/startup-music' : process.argv.includes('--audio-timeline') ? 'docs/validation-images/audio-timeline' : process.argv.includes('--fixed-map') ? 'docs/validation-images/fixed-map' : audioCheck ? 'docs/validation-images/playback-audio' : process.argv.includes('--controls') ? 'docs/validation-images/controls-playback' : 'docs/validation-images/observatory';
 const server = createServer(async (request, response) => {
   try {
     const pathname = decodeURIComponent(new URL(request.url, 'http://localhost').pathname);
@@ -27,18 +28,26 @@ try {
   browser = await chromium.launch();
   const results = [], failures = [];
   const url = 'http://127.0.0.1:4174/atlas/';
-  for (const viewport of [{width:1440,height:900},{width:768,height:1024},{width:844,height:390}]) {
+  const viewports = [{width:1440,height:900},{width:768,height:1024},{width:844,height:390}];
+  if (startupCheck) viewports.push({width:360,height:800},{width:601,height:900},{width:1100,height:900});
+  for (const viewport of viewports) {
     const context = await browser.newContext({ viewport, timezoneId:'America/New_York' });
     const page = await context.newPage();
-    const external = [];
+    const external = [], mapRequests = [];
     page.on('request', request => {
       const requestUrl=request.url();
+      if (requestUrl.includes('/maps/')) mapRequests.push(requestUrl);
       if (!requestUrl.startsWith('http://127.0.0.1:4174/') && !requestUrl.startsWith('blob:http://127.0.0.1:4174/')) external.push(requestUrl);
     });
     page.on('pageerror', error => failures.push(error.message));
     page.on('response', response => { if (response.status() >= 400) failures.push(`${response.status()} ${response.url()}`); });
     await page.goto(url);
-    await page.getByText('正在加载官方地图').waitFor({state:'hidden'});
+    await expect(page.getByRole('button',{name:'开始播放',exact:true})).toBeEnabled({timeout:30000});
+    if (startupCheck) {
+      await expect(page.getByTestId('clock')).toHaveText('00:00');
+      await expect(page.getByTestId('map-clock')).toHaveText('00:00');
+      await expect(page.getByRole('button',{name:'关闭音乐',exact:true})).toHaveAttribute('aria-pressed','true');
+    }
     const mobile=page.getByRole('button',{name:'日期与节气',exact:true});
     if(await mobile.isVisible())await mobile.click();
     const date = await page.getByRole('button',{name:'日期 1',exact:true}).getAttribute('data-date');
@@ -47,7 +56,7 @@ try {
     await page.getByRole('button',{name:'两天对比',exact:true}).click();
     const close=page.getByRole('button',{name:'关闭面板'});
     if(await close.isVisible())await close.click();
-    await page.getByText('正在加载官方地图').waitFor({state:'hidden'});
+    await expect(page.getByRole('button',{name:'开始播放',exact:true})).toBeEnabled({timeout:30000});
     if(await mobile.isVisible())await mobile.click();
     await page.locator('.term-button').filter({hasText:'夏至'}).click();
     let music;
@@ -70,6 +79,9 @@ try {
       canvases:[...document.querySelectorAll('.map-canvas')].map(element=>({width:element.clientWidth,height:element.clientHeight})),
     }));
     const errors = await page.locator('.map-error').allTextContents();
+    if (startupCheck) {
+      if (mapRequests.length) throw new Error(`Unexpected map JSON requests: ${mapRequests.join(', ')}`);
+    }
     if(view.overflow || errors.length || external.length || view.canvases.length!==2 || view.canvases.some(canvas=>canvas.width<=0||canvas.height<=0))
       throw new Error(JSON.stringify({viewport,view,errors,external}));
     if (audioCheck) {

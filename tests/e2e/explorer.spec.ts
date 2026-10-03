@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { chooseDate } from '../helpers/date-picker';
-async function ready(page:Page){await expect(page.getByText('正在加载官方地图')).toHaveCount(0,{timeout:30000});await expect(page.getByRole('button',{name:'开始播放',exact:true})).toBeEnabled({timeout:30000});}
+async function ready(page:Page){await expect(page.getByText('正在准备地图…')).toHaveCount(0,{timeout:30000});await expect(page.getByRole('button',{name:'开始播放',exact:true})).toBeEnabled({timeout:30000});}
 async function datePanel(page:Page){const b=page.getByRole('button',{name:'日期与节气',exact:true});if(await b.isVisible()&& !await page.getByRole('dialog').isVisible())await b.click();}
 async function closePanel(page:Page){const b=page.getByRole('button',{name:'关闭面板'});if(await b.isVisible())await b.click();}
 async function view(page:Page,i=0){return page.locator('.map-pane').nth(i).evaluate(e=>(e as any).__vueParentComponent.exposed.getView());}
@@ -13,6 +13,11 @@ async function clickMap(page:Page,point:[number,number]){
   await rendered(page);
 }
 async function details(page:Page){const b=page.getByRole('button',{name:'地区详情',exact:true});if(await b.isVisible() && !await page.locator('.mobile-dialog').isVisible())await b.click();}
+async function clickLabel(page:Page,id:string){
+  await rendered(page);
+  const position=await page.locator('.map-pane').first().evaluate((e,id)=>(e as any).__vueParentComponent.exposed.getProvinceLabelPoint(id),id);
+  await page.locator('.map-canvas').first().click({position});
+}
 
 test('观测栏／手机面板、节气自动播放、普通换日保留时分、两天对比',async({page})=>{
   const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await ready(page);
@@ -46,7 +51,7 @@ test('固定全国图仅点击省级详情，所有手势不移动视角，双�
   await expect(page.getByRole('button',{name:'放大地图',exact:true})).toHaveCount(0);
   await expect(page.getByRole('button',{name:'缩小地图',exact:true})).toHaveCount(0);
   await expect(page.getByRole('button',{name:'查看全境',exact:true})).toHaveCount(0);
-  await clickMap(page,[113.619301,34.748374]);await details(page);
+  await clickLabel(page,'156410000');await details(page);
   await expect(page.getByRole('heading',{name:'河南省',exact:true})).toBeVisible();
   expect(await view(page)).toEqual(initial);await closePanel(page);
   if(info.project.name.includes('mobile'))await expect(page.getByRole('button',{name:'地区详情',exact:true})).toBeFocused();
@@ -70,33 +75,30 @@ test('固定全国图仅点击省级详情，所有手势不移动视角，双�
   await details(page);await page.getByRole('navigation',{name:'行政区路径'}).getByRole('button',{name:'全国',exact:true}).click();expect(await view(page)).toEqual(initial);
   await datePanel(page);await page.getByRole('button',{name:'两天对比',exact:true}).click();await closePanel(page);await ready(page);
   const a=await view(page),b=await view(page,1);expect(b.center).toEqual(a.center);expect(b.zoom).toBeCloseTo(a.zoom,4);
-  await clickMap(page,[110.323956,20.033443]);await details(page);await expect(page.getByRole('heading',{name:'海南省',exact:true})).toBeVisible();
+  await clickLabel(page,'156460000');await details(page);await expect(page.getByRole('heading',{name:'海南省',exact:true})).toBeVisible();
   expect(await view(page)).toEqual(a);expect(await view(page,1)).toEqual(b);
   expect(requests).toEqual([]);
 });
 
-test('台湾、直辖市及港澳省级面和名称均能点击，不进入下级',async({page},info)=>{
-  test.skip(info.project.name!=='desktop-chromium','特殊省级名称命中在桌面专项验证');
+test('台湾、直辖市及港澳省名均能点击，不进入下级',async({page})=>{
   await page.goto('/');await ready(page);const initial=await view(page);
-  for(const [point,name] of [[[121.563787,25.037522],'台湾省'],[[116.718412,39.903857],'北京市'],[[114.166608,22.272483],'香港特别行政区'],[[113.538095,22.189786],'澳门特别行政区']] as const){
-    await clickMap(page,[...point]);await expect(page.getByRole('heading',{name,exact:true})).toBeVisible();
+  for(const [id,name] of [['156710000','台湾省'],['156110000','北京市'],['156810000','香港特别行政区'],['156820000','澳门特别行政区']] as const){
+    await rendered(page);
+    const position=await page.locator('.map-pane').evaluate((e,id)=>(e as any).__vueParentComponent.exposed.getProvinceLabelPoint(id),id);
+    await page.locator('.map-canvas').click({position});
+    await expect(page.getByRole('heading',{name,exact:true})).toBeVisible();
     expect(await view(page)).toEqual(initial);await expect(page.locator('.level-chip')).toHaveCount(0);
+    await closePanel(page);
   }
-  // 香港标注在地理锚点右下方，点击文字而非狭小的行政面。
-  const p=await page.locator('.map-pane').evaluate(e=>(e as any).__vueParentComponent.exposed.projectPoint([114.166608,22.272483]));
-  await page.locator('.map-canvas').click({position:{x:p.x+13,y:p.y+5}});
-  await expect(page.getByRole('heading',{name:'香港特别行政区',exact:true})).toBeVisible();expect(await view(page)).toEqual(initial);
 });
 
 test('快速节气选择以最后一次为准，后台暂停后不自行恢复',async({page},info)=>{
   test.skip(info.project.name!=='desktop-chromium','竞态与后台故障注入桌面验证');
   await page.goto('/');await ready(page);
-  let release!:()=>void;const gate=new Promise<void>(r=>release=r);
-  await page.route('**/maps/context/island-labels.json',async route=>{await gate;await route.continue();});
   // A second map uses cached data but still has asynchronous graphics initialization.
   await page.getByRole('button',{name:'两天对比',exact:true}).click();
   await page.locator('.term-button').filter({hasText:'夏至'}).click();
-  await page.locator('.term-button').filter({hasText:'冬至'}).click();release();
+  await page.locator('.term-button').filter({hasText:'冬至'}).click();
   const date=await page.locator('.term-button').filter({hasText:'冬至'}).locator('small').innerText();
   await expect(page.locator('.map-day').first()).toHaveText(date.replaceAll('-','.'));
   await expect(page.getByRole('button',{name:'暂停播放',exact:true})).toBeVisible();
@@ -119,12 +121,20 @@ test('日历允许两个完整年份，日期范围两端均可选择',async({pa
   await expect(page.getByRole('gridcell',{name:after.toISOString().slice(0,10),exact:true})).toHaveAttribute('aria-disabled','true');
   await page.keyboard.press('Escape');await expect(date).toHaveAttribute('data-date',max);
 });
-test('全国资源失败有提示，可分别重试恢复数据和绘图后播放',async({page})=>{
-  await page.route('**/maps/provinces.json',r=>r.abort());await page.goto('/');await expect(page.locator('.map-error')).toBeVisible();
+test('首次图形初始化失败可重试恢复，再准备全国播放',async({page})=>{
+  await page.addInitScript(()=>{
+    (window as any).__denyWebGL=true;
+    const original=HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext=function(this:HTMLCanvasElement,type:string,...args:unknown[]){
+      if((window as any).__denyWebGL && (type==='webgl'||type==='webgl2'||type==='experimental-webgl'))return null;
+      return (original as any).call(this,type,...args);
+    } as typeof original;
+  });
+  await page.goto('/');await expect(page.locator('.map-error')).toBeVisible();
   await expect(page.getByRole('button',{name:'开始播放',exact:true})).toBeDisabled();
-  await datePanel(page);await expect(page.getByRole('button',{name:'两天对比',exact:true})).toBeDisabled();
-  await expect(page.locator('.term-button').first()).toBeDisabled();await closePanel(page);await page.unroute('**/maps/provinces.json');
-  await page.getByRole('button',{name:'重试全国数据',exact:true}).click();await page.locator('.map-error button').click();await ready(page);await expect(page.locator('.map-error')).toHaveCount(0);
+  await datePanel(page);await expect(page.locator('.term-button').first()).toBeDisabled();await closePanel(page);
+  await page.evaluate(()=>{(window as any).__denyWebGL=false;});
+  await page.locator('.map-error button').click();await ready(page);await expect(page.locator('.map-error')).toHaveCount(0);
 });
 test('主图和附图图形上下文丢失后重建并恢复绘制',async({page})=>{
   await page.goto('/');await ready(page);await page.waitForTimeout(300);

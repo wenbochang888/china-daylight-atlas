@@ -1,23 +1,29 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
-import type { FeatureCollection } from 'geojson';
 import MapPane from './components/MapPane.vue';
 import RegionDetails from './components/RegionDetails.vue';
 import SolarTermPanel from './components/SolarTermPanel.vue';
 import MapClock from './components/MapClock.vue';
 import TimeScrubber from './components/TimeScrubber.vue';
 import UiIcon from './components/UiIcon.vue';
-import { beijingDate, beijingMinute, clampDate, clampMinute, dateLimits, previousDate, toInstant } from './domain/beijing-time';
+import { beijingDate, clampDate, clampMinute, dateLimits, previousDate, toInstant } from './domain/beijing-time';
 import { solarVector } from './domain/solar';
 import { solarTermOptions } from './domain/solar-terms';
 import { combinePlaybackSegments, nationalPlaybackSegments, playbackElapsedSeconds, prepareNationalGeometry, type NationalGeometry } from './domain/national-playback';
-import { loadIndex, resource } from './data/map-repository';
+import { nationalMap } from './data/national-map';
 import { usePlayback } from './composables/usePlayback';
 import { usePlaybackAudio } from './composables/usePlaybackAudio';
 import pianoUrl from './mp3/钢琴曲.mp3';
 import type { Camera, PlaybackMultiplier, PlaybackSegment, Region, SolarTermOption } from './domain/types';
 
-const now = new Date(), today = ref(beijingDate(now)), limits = ref(dateLimits(now)), dates = ref([today.value]), minute = ref(beijingMinute(now));
+const now = new Date(), today = ref(beijingDate(now)), limits = ref(dateLimits(now)), dates = ref([today.value]), minute = ref(0);
+const musicPreferenceKey = 'china-daylight-atlas:music-enabled';
+function preferredMusic() { try { return localStorage.getItem(musicPreferenceKey) !== 'false'; } catch { return true; } }
+const musicEnabled = ref(preferredMusic());
+function toggleMusic() {
+  musicEnabled.value = !musicEnabled.value;
+  try { localStorage.setItem(musicPreferenceKey, String(musicEnabled.value)); } catch { /* The in-page preference remains usable. */ }
+}
 const termYear = computed(() => Number(today.value.slice(0,4)));
 const regions = shallowRef<Region[]>([]), shape = shallowRef<NationalGeometry | null>(null);
 const segments = shallowRef<PlaybackSegment[]>([]), terms = shallowRef<SolarTermOption[]>([]);
@@ -30,7 +36,7 @@ const playbackMultiplier = computed<PlaybackMultiplier>(() => 1);
 const { playing, pause, start, toggle } = usePlayback(minute, segments, playbackMultiplier);
 const playbackAudio = shallowRef<HTMLAudioElement>();
 const playbackSeconds = computed(() => playbackElapsedSeconds(minute.value, segments.value, playbackMultiplier.value));
-const { error: audioError, retry: retryAudio } = usePlaybackAudio(playbackAudio, playing, playbackSeconds);
+const { error: audioError, retry: retryAudio } = usePlaybackAudio(playbackAudio, playing, playbackSeconds, musicEnabled);
 const dataError = ref(''), phaseError = ref(''), termError = ref(''), notice = ref('');
 const dataLoading = ref(true), pendingPlay = ref(false);
 const mapStates = ref<Array<'loading' | 'ready' | 'error'>>(['loading']);
@@ -79,6 +85,7 @@ function onStatus(i: number, status: 'loading' | 'ready' | 'error') {
   mapStates.value[i] = status;
   if (status === 'error') cancelPlayback();
   else if (status === 'loading') pause();
+  scheduleInitialCalculations();
 }
 function togglePlayback() {
   pendingPlay.value = false;
@@ -100,18 +107,36 @@ function selectFromMap(id: string) {
     panel.value = 'region';
   }
 }
-let initialization = 0;
-async function initialize() {
-  const attempt = ++initialization;
+let initialization = 0, calculationFrame: number | undefined, calculationTimer: ReturnType<typeof setTimeout> | undefined;
+function clearInitialCalculations() {
+  if (calculationFrame !== undefined) cancelAnimationFrame(calculationFrame);
+  clearTimeout(calculationTimer); calculationFrame = undefined; calculationTimer = undefined;
+}
+function scheduleInitialCalculations() {
+  if (shape.value || dataError.value || phaseError.value || dataLoading.value || calculationFrame !== undefined || calculationTimer !== undefined ||
+    !dates.value.every((_, i) => mapStates.value[i] === 'ready')) return;
+  const attempt = initialization;
+  // Give both maps a paint opportunity before scanning national geometry for playback.
+  calculationFrame = requestAnimationFrame(() => {
+    calculationFrame = undefined;
+    calculationTimer = setTimeout(() => {
+      calculationTimer = undefined;
+      if (attempt !== initialization || !dates.value.every((_, i) => mapStates.value[i] === 'ready')) return;
+      try { shape.value = prepareNationalGeometry(nationalMap().provinces); prepareDates(); }
+      catch { cancelPlayback(); phaseError.value = '全天播放区间计算失败，请重试。'; }
+    }, 0);
+  });
+}
+function initialize() {
+  ++initialization; clearInitialCalculations(); shape.value = null; segments.value = []; phaseError.value = '';
   cancelPlayback(); dataError.value = ''; dataLoading.value = true;
   try {
-    const [directory, geometry] = await Promise.all([loadIndex(), resource<FeatureCollection>('provinces.json')]);
-    if (attempt !== initialization) return;
-    regions.value = directory.filter(region => region.level === 'province'); shape.value = prepareNationalGeometry(geometry); prepareDates();
-  } catch { if (attempt === initialization) dataError.value = '行政区与全国地图加载失败，请检查静态资源后重试。'; }
-  finally { if (attempt === initialization) dataLoading.value = false; }
+    regions.value = nationalMap().regions;
+  } catch { dataError.value = '内置全国地图准备失败，请刷新页面或重试。'; }
+  finally { dataLoading.value = false; }
+  scheduleInitialCalculations();
 }
-function retryCalculations() { cancelPlayback(); prepareTerms(); prepareDates(); }
+function retryCalculations() { cancelPlayback(); prepareTerms(); phaseError.value = ''; if (shape.value) prepareDates(); else scheduleInitialCalculations(); }
 function refreshLimits() {
   if (document.hidden) cancelPlayback();
   const current = new Date(), next = dateLimits(current);
@@ -167,7 +192,7 @@ onMounted(() => {
 });
 onBeforeUnmount(() => {
   layoutObserver?.disconnect();
-  ++initialization; clearInterval(timer); media?.removeEventListener('change', layoutChange);
+  ++initialization; clearInitialCalculations(); clearInterval(timer); media?.removeEventListener('change', layoutChange);
   document.removeEventListener('visibilitychange', refreshLimits);
   window.removeEventListener('resize', measureTimeline);
 });
@@ -182,14 +207,14 @@ onBeforeUnmount(() => {
             <span class="brand-symbol" aria-hidden="true"><UiIcon name="sun" /></span>
             <div class="map-title"><span class="eyebrow">日光观测台</span><h1>中国昼夜地图</h1></div>
           </div>
-          <MapClock :minute="minute" :playing="playing" :ready="ready" @toggle="togglePlayback" />
+          <MapClock :minute="minute" :playing="playing" :ready="ready" :music-enabled="musicEnabled" @toggle="togglePlayback" @music="toggleMusic" />
         </header>
         <div v-if="compact" class="mobile-toolbar">
           <button aria-label="地区详情" :class="{'has-selection':selected}" @click="openPanel('region',$event)"><UiIcon name="pin" />地区详情<span v-if="selected" class="selected-name">{{selected.name}}</span></button>
           <button @click="openPanel('date',$event)"><UiIcon name="calendar" />日期与节气</button>
         </div>
         <div v-if="notice" class="notice" role="status">{{notice}}<button class="icon-button" aria-label="关闭提示" @click="notice=''"><UiIcon name="close" /></button></div>
-        <div v-if="audioError" class="notice audio-notice" role="status"><span>{{audioError}}</span><button :disabled="!playing" @click="retryAudio">重试音乐</button></div>
+        <div v-if="musicEnabled && audioError" class="notice audio-notice" role="status"><span>{{audioError}}</span><button :disabled="!playing" @click="retryAudio">重试音乐</button></div>
         <div v-if="dataError" class="panel-error" role="alert">{{dataError}}<button @click="initialize">重试全国数据</button></div>
         <div class="maps" :class="{comparing:compare}">
           <MapPane v-for="(date,i) in dates" :key="i" :number="i" :date="date" :minute="minute" :vector="vectors[i]" :selected="selected" :camera="camera" @select="selectFromMap" @camera="camera=$event" @status="onStatus(i,$event)" />
@@ -202,7 +227,7 @@ onBeforeUnmount(() => {
       </section>
       <aside v-if="!compact" class="observation-rail" aria-label="日期与地区观测">
         <div class="rail-heading"><h2>观测记录</h2><UiIcon name="sun" /></div>
-        <SolarTermPanel :dates="dates" :min="limits.min" :max="limits.max" :today="today" :year="termYear" :compare="compare" :target="target" :terms="terms" :disabled="dataLoading||!!dataError" :error="phaseError||termError" @date="setDate" @compare="toggleCompare" @target="target=$event" @term="selectTerm" @retry="retryCalculations">
+        <SolarTermPanel :dates="dates" :min="limits.min" :max="limits.max" :today="today" :year="termYear" :compare="compare" :target="target" :terms="terms" :disabled="dataLoading||!!dataError||!segments.length" :error="phaseError||termError" @date="setDate" @compare="toggleCompare" @target="target=$event" @term="selectTerm" @retry="retryCalculations">
           <Transition name="details" mode="out-in" @after-enter="restoreDetailsFocus">
             <section v-if="selected && detailsOpen" class="details-card" key="open">
               <div class="details-heading"><span>地区观测</span><button class="icon-button" aria-label="关闭地区详情" @click="setDetailsOpen(false)"><UiIcon name="close" /></button></div>
@@ -221,7 +246,7 @@ onBeforeUnmount(() => {
       <template v-if="panel">
         <div class="dialog-heading"><span>{{panel==='region'?'地区详情':'日期与节气'}}</span><button class="icon-button" autofocus aria-label="关闭面板" @click="closePanel"><UiIcon name="close" /></button></div>
         <RegionDetails v-if="panel==='region'" :region="selected" :index="index" :dates="dates" :vectors="vectors" @select="select" />
-        <SolarTermPanel v-else :popup-host="calendarHost" :dates="dates" :min="limits.min" :max="limits.max" :today="today" :year="termYear" :compare="compare" :target="target" :terms="terms" :disabled="dataLoading||!!dataError" :error="phaseError||termError" @date="setDate" @compare="toggleCompare" @target="target=$event" @term="selectTerm" @retry="retryCalculations" />
+        <SolarTermPanel v-else :popup-host="calendarHost" :dates="dates" :min="limits.min" :max="limits.max" :today="today" :year="termYear" :compare="compare" :target="target" :terms="terms" :disabled="dataLoading||!!dataError||!segments.length" :error="phaseError||termError" @date="setDate" @compare="toggleCompare" @target="target=$event" @term="selectTerm" @retry="retryCalculations" />
       </template>
     </dialog>
   </main>

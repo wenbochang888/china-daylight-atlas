@@ -131,6 +131,16 @@ for (const p of provinces) {
     collection(features.filter(f => f.properties.provinceId === p.gb && (f.properties.level === level || level === 'city' && f.properties.level === 'auxiliary'))));
 }
 write('index.json', [...nodes.values()]);
+// The current UI only needs provinces. Keep full geometry, but omit unused city/county metadata.
+const startupDirectory = path.join(root, 'src/data/generated');
+mkdirSync(startupDirectory, { recursive: true });
+writeFileSync(path.join(startupDirectory, 'national-map.json'), JSON.stringify({
+  regions: [...nodes.values()].filter(node => node.level === 'province'),
+  provinces: collection(features.filter(feature => feature.properties.level === 'province')),
+  boundaries: collection(lines),
+  labels: collection(labels.filter(feature => feature.properties.level === 'province')),
+  islandLabels: collection(annotations),
+}));
 const coverage = provinces.map(p => ({ name:p.name,id:p.gb,
   city:features.filter(f=>f.properties.provinceId===p.gb&&f.properties.level==='city').length,
   county:features.filter(f=>f.properties.provinceId===p.gb&&f.properties.level==='county').length }));

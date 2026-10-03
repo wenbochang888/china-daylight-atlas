@@ -28,7 +28,7 @@ function deferred() {
 }
 function setup(withPlayback = false) {
   const media = new Media(), audio = shallowRef<HTMLAudioElement | undefined>(media as unknown as HTMLAudioElement);
-  const playing = ref(false), minute = ref(0), elapsed = ref(0);
+  const playing = ref(false), minute = ref(0), elapsed = ref(0), enabled = ref(true);
   const doc = Object.assign(new EventTarget(), { hidden: false });
   vi.stubGlobal('document', doc);
   vi.stubGlobal('requestAnimationFrame', vi.fn(() => 1));
@@ -36,12 +36,33 @@ function setup(withPlayback = false) {
   let controls!: ReturnType<typeof usePlaybackAudio>, playback: ReturnType<typeof usePlayback> | undefined;
   app=renderer.createApp({setup(){
     if (withPlayback) playback=usePlayback(minute,ref([{startMinute:0,endMinute:1440,speed:90 as const}]),ref(1 as const));
-    controls=usePlaybackAudio(audio,playback?.playing ?? playing,elapsed); return()=>null;
+    controls=usePlaybackAudio(audio,playback?.playing ?? playing,elapsed,enabled); return()=>null;
   }}); app.mount({});
-  return { media, audio, elapsed, playing: playback?.playing ?? playing, controls, playback, doc };
+  return { media, audio, elapsed, enabled, playing: playback?.playing ?? playing, controls, playback, doc };
 }
 
 describe('共享播放音频', () => {
+  it('关闭音乐时不调用播放，重新开启按最新地图进度定位且不改变地图状态', async () => {
+    const p=setup(); p.enabled.value=false; p.playing.value=true; p.elapsed.value=43;
+    p.controls.retry(); expect(p.media.play).not.toHaveBeenCalled(); expect(p.playing.value).toBe(true);
+    p.enabled.value=true; await settle(); expect(p.media.currentTime).toBe(43); expect(p.media.paused).toBe(false);
+    p.enabled.value=false; expect(p.media.paused).toBe(true); expect(p.playing.value).toBe(true);
+    p.playing.value=false; p.enabled.value=true; expect(p.media.play).toHaveBeenCalledTimes(1);
+  });
+  it('关闭后迟到的成功或拒绝不恢复声音或错误，重新开启时旧请求不干扰新播放', async () => {
+    const p=setup(), pending=deferred(); p.media.play.mockReturnValueOnce(pending.promise);
+    p.playing.value=true; p.enabled.value=false; p.media.paused=false; pending.resolve(); await settle();
+    expect(p.media.paused).toBe(true); expect(p.controls.error.value).toBe('');
+    const old=deferred(); p.media.play.mockReturnValueOnce(old.promise); p.enabled.value=true;
+    p.enabled.value=false; p.enabled.value=true; await settle(); const pauses=p.media.pause.mock.calls.length;
+    old.resolve(); await settle(); expect(p.media.pause).toHaveBeenCalledTimes(pauses); expect(p.media.paused).toBe(false);
+    p.enabled.value=false; p.media.play.mockRejectedValueOnce(new DOMException('blocked','NotAllowedError'));
+    p.enabled.value=true; await settle(); expect(p.controls.error.value).not.toBe('');
+    p.enabled.value=false; expect(p.controls.error.value).toBe('');
+    p.media.dispatchEvent(new Event('error')); expect(p.controls.error.value).toBe('');
+    const rejected=deferred(); p.media.play.mockReturnValueOnce(rejected.promise); p.enabled.value=true;
+    p.enabled.value=false; rejected.reject(new Error('late')); await settle(); expect(p.controls.error.value).toBe('');
+  });
   it('初始静音，开始同步调用播放；暂停保留进度，续播不归零', async () => {
     const p=setup(); expect(p.media.play).not.toHaveBeenCalled();
     p.playing.value=true; expect(p.media.play).toHaveBeenCalledTimes(1); await settle();

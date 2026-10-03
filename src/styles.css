@@ -45,6 +45,10 @@ h1, h2, h3, h4, p, dl { margin: 0; }
 .eyebrow { font-size: 12px; letter-spacing: .16em; color: var(--muted); }
 .map-title h1 { font-family: var(--display); font-size: 28px; font-weight: 600; line-height: 1.35; letter-spacing: .04em; margin-top: 3px; }
 .clock-control { display: flex; align-items: center; gap: 22px; }
+.clock-actions { display: flex; align-items: center; gap: 8px; }
+.music-button { display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 92px; height: 48px; font-size: 13px; color: var(--sky); }
+.music-button[aria-pressed="false"] { color: var(--muted); }
+.music-button .ui-icon { width: 18px; height: 18px; }
 .clock-face { min-width: 146px; }
 .clock-face strong { display: block; font-family: var(--mono); font-size: 44px; font-weight: 400; line-height: 1.1; letter-spacing: -.06em; font-variant-numeric: tabular-nums; }
 .clock-caption { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 5px; font-size: 12px; color: var(--muted); }
@@ -212,6 +216,7 @@ h1, h2, h3, h4, p, dl { margin: 0; }
   .maps { min-height: 560px; }
   .map-pane { min-height: 560px; }
   .map-toolbar { padding: 20px 24px; }
+  .clock-actions { flex-direction: column; }
 }
 @media (min-width: 1100px) {
   .map-workspace { overflow-y: auto; }
@@ -229,6 +234,9 @@ h1, h2, h3, h4, p, dl { margin: 0; }
   .eyebrow { font-size: 12px; letter-spacing: .08em; }
   .map-title h1 { font-size: 21px; letter-spacing: .02em; }
   .clock-control { gap: 10px; }
+  .clock-actions { flex-direction: column; gap: 4px; }
+  .music-button { min-width: 44px; width: 44px; height: 44px; padding: 0; }
+  .music-label { display: none; }
   .clock-face { min-width: 100px; }
   .clock-face strong { font-size: 32px; }
   .clock-caption { font-size: 12px; }

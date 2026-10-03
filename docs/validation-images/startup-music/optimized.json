@@ -1,0 +1,193 @@
+{
+  "label": "optimized",
+  "checkedAt": "2026-10-03T17:25:00.108Z",
+  "environment": "Chromium headless; 1440x1000; 10 Mbps / 60 ms latency / 4x CPU slowdown; gzip; hashed assets immutable; HTML and JSON no-cache",
+  "summary": {
+    "cold": {
+      "mapVisibleMs": 2318,
+      "playbackReadyMs": 2663,
+      "transferBytes": 1047973
+    },
+    "warm": {
+      "mapVisibleMs": 1389,
+      "playbackReadyMs": 1735,
+      "transferBytes": 300
+    }
+  },
+  "samples": [
+    {
+      "run": 1,
+      "cache": "cold",
+      "mapVisibleMs": 2428.199999988079,
+      "playbackReadyMs": 2760.199999988079,
+      "resources": [
+        {
+          "path": "/atlas/assets/index-CG_norRD.js",
+          "transferBytes": 360896,
+          "decodedBytes": 1241000
+        },
+        {
+          "path": "/atlas/assets/index-B-zh2afF.css",
+          "transferBytes": 18758,
+          "decodedBytes": 112031
+        },
+        {
+          "path": "/atlas/assets/national-map-DXJ-ps3T.js",
+          "transferBytes": 597962,
+          "decodedBytes": 1725479
+        },
+        {
+          "path": "/atlas/assets/DateControls-CUyVH7nI.js",
+          "transferBytes": 69498,
+          "decodedBytes": 227855
+        }
+      ],
+      "transferBytes": 1047973
+    },
+    {
+      "run": 1,
+      "cache": "warm",
+      "mapVisibleMs": 1389.1000000238419,
+      "playbackReadyMs": 1735.199999988079,
+      "resources": [
+        {
+          "path": "/atlas/assets/index-CG_norRD.js",
+          "transferBytes": 0,
+          "decodedBytes": 1241000
+        },
+        {
+          "path": "/atlas/assets/national-map-DXJ-ps3T.js",
+          "transferBytes": 0,
+          "decodedBytes": 1725479
+        },
+        {
+          "path": "/atlas/assets/index-B-zh2afF.css",
+          "transferBytes": 0,
+          "decodedBytes": 112031
+        },
+        {
+          "path": "/atlas/assets/DateControls-CUyVH7nI.js",
+          "transferBytes": 0,
+          "decodedBytes": 227855
+        }
+      ],
+      "transferBytes": 300
+    },
+    {
+      "run": 2,
+      "cache": "cold",
+      "mapVisibleMs": 2318.400000035763,
+      "playbackReadyMs": 2662.5,
+      "resources": [
+        {
+          "path": "/atlas/assets/index-CG_norRD.js",
+          "transferBytes": 360896,
+          "decodedBytes": 1241000
+        },
+        {
+          "path": "/atlas/assets/index-B-zh2afF.css",
+          "transferBytes": 18758,
+          "decodedBytes": 112031
+        },
+        {
+          "path": "/atlas/assets/national-map-DXJ-ps3T.js",
+          "transferBytes": 597962,
+          "decodedBytes": 1725479
+        },
+        {
+          "path": "/atlas/assets/DateControls-CUyVH7nI.js",
+          "transferBytes": 69498,
+          "decodedBytes": 227855
+        }
+      ],
+      "transferBytes": 1047973
+    },
+    {
+      "run": 2,
+      "cache": "warm",
+      "mapVisibleMs": 1395.3999999761581,
+      "playbackReadyMs": 1742.1000000238419,
+      "resources": [
+        {
+          "path": "/atlas/assets/index-CG_norRD.js",
+          "transferBytes": 0,
+          "decodedBytes": 1241000
+        },
+        {
+          "path": "/atlas/assets/national-map-DXJ-ps3T.js",
+          "transferBytes": 0,
+          "decodedBytes": 1725479
+        },
+        {
+          "path": "/atlas/assets/index-B-zh2afF.css",
+          "transferBytes": 0,
+          "decodedBytes": 112031
+        },
+        {
+          "path": "/atlas/assets/DateControls-CUyVH7nI.js",
+          "transferBytes": 0,
+          "decodedBytes": 227855
+        }
+      ],
+      "transferBytes": 300
+    },
+    {
+      "run": 3,
+      "cache": "cold",
+      "mapVisibleMs": 2299.399999976158,
+      "playbackReadyMs": 2630.399999976158,
+      "resources": [
+        {
+          "path": "/atlas/assets/index-CG_norRD.js",
+          "transferBytes": 360896,
+          "decodedBytes": 1241000
+        },
+        {
+          "path": "/atlas/assets/index-B-zh2afF.css",
+          "transferBytes": 18758,
+          "decodedBytes": 112031
+        },
+        {
+          "path": "/atlas/assets/national-map-DXJ-ps3T.js",
+          "transferBytes": 597962,
+          "decodedBytes": 1725479
+        },
+        {
+          "path": "/atlas/assets/DateControls-CUyVH7nI.js",
+          "transferBytes": 69498,
+          "decodedBytes": 227855
+        }
+      ],
+      "transferBytes": 1047973
+    },
+    {
+      "run": 3,
+      "cache": "warm",
+      "mapVisibleMs": 1377.2000000476837,
+      "playbackReadyMs": 1726.6000000238419,
+      "resources": [
+        {
+          "path": "/atlas/assets/index-CG_norRD.js",
+          "transferBytes": 0,
+          "decodedBytes": 1241000
+        },
+        {
+          "path": "/atlas/assets/national-map-DXJ-ps3T.js",
+          "transferBytes": 0,
+          "decodedBytes": 1725479
+        },
+        {
+          "path": "/atlas/assets/index-B-zh2afF.css",
+          "transferBytes": 0,
+          "decodedBytes": 112031
+        },
+        {
+          "path": "/atlas/assets/DateControls-CUyVH7nI.js",
+          "transferBytes": 0,
+          "decodedBytes": 227855
+        }
+      ],
+      "transferBytes": 300
+    }
+  ]
+}
