@@ -26,7 +26,8 @@ test('内置地图无需JSON请求，首次与刷新使用北京时间今天零�
     provinces:new Set((e as any).__vueParentComponent.exposed.getProvinceLabels()).size,
     islands:new Set((e as any).__vueParentComponent.exposed.getInsetLabels()).size,
   })));
-  expect(labels.every(value=>value.provinces===34 && value.islands>=6)).toBe(true);
+  const mobile=await page.locator('.atlas-app').evaluate(e=>e.classList.contains('mobile-presentation'));
+  expect(labels.every(value=>value.provinces===34 && (mobile ? value.islands===0 : value.islands>=6))).toBe(true);
   expect(maps).toEqual([]);expect(music).toEqual([]);expect(errors).toEqual([]);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });

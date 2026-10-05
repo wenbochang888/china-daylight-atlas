@@ -6,6 +6,7 @@ import SolarTermPanel from './components/SolarTermPanel.vue';
 import MapClock from './components/MapClock.vue';
 import TimeScrubber from './components/TimeScrubber.vue';
 import UiIcon from './components/UiIcon.vue';
+import HeaderActions from './components/HeaderActions.vue';
 import { beijingDate, clampDate, clampMinute, dateLimits, previousDate, toInstant } from './domain/beijing-time';
 import { solarVector } from './domain/solar';
 import { solarTermOptions } from './domain/solar-terms';
@@ -13,6 +14,7 @@ import { combinePlaybackSegments, nationalPlaybackSegments, playbackElapsedSecon
 import { nationalMap } from './data/national-map';
 import { usePlayback } from './composables/usePlayback';
 import { usePlaybackAudio } from './composables/usePlaybackAudio';
+import { useMapFullscreen } from './composables/useMapFullscreen';
 import pianoUrl from './mp3/钢琴曲.mp3';
 import type { Camera, PlaybackMultiplier, PlaybackSegment, Region, SolarTermOption } from './domain/types';
 
@@ -23,6 +25,17 @@ const musicEnabled = ref(preferredMusic());
 function toggleMusic() {
   musicEnabled.value = !musicEnabled.value;
   try { localStorage.setItem(musicPreferenceKey, String(musicEnabled.value)); } catch { /* The in-page preference remains usable. */ }
+}
+const themePreferenceKey = 'china-daylight-atlas:theme';
+function preferredDarkMode() { try { return localStorage.getItem(themePreferenceKey) === 'dark'; } catch { return false; } }
+const darkMode = ref(preferredDarkMode());
+watch(darkMode, value => {
+  document.documentElement.dataset.theme = value ? 'dark' : 'light';
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', value ? '#101e27' : '#f4f8fa');
+}, { immediate: true });
+function toggleTheme() {
+  darkMode.value = !darkMode.value;
+  try { localStorage.setItem(themePreferenceKey, darkMode.value ? 'dark' : 'light'); } catch { /* The in-page preference remains usable. */ }
 }
 const termYear = computed(() => Number(today.value.slice(0,4)));
 const regions = shallowRef<Region[]>([]), shape = shallowRef<NationalGeometry | null>(null);
@@ -43,6 +56,10 @@ const mapStates = ref<Array<'loading' | 'ready' | 'error'>>(['loading']);
 const ready = computed(() => !dataLoading.value && !dataError.value && !phaseError.value && !!segments.value.length && dates.value.every((_, i) => mapStates.value[i] === 'ready'));
 const detailsOpen = ref(false);
 const mapWorkspace = ref<HTMLElement>(), mapWidth = ref(920);
+const { mode: fullscreenMode, active: immersive, pending: fullscreenPending, enter: enterFullscreen, exit: exitFullscreen } = useMapFullscreen(mapWorkspace);
+const mobileMedia = window.matchMedia('(max-width: 600px), (max-height: 600px) and (hover: none) and (pointer: coarse)');
+const mobilePresentation = ref(mobileMedia.matches), mobileMapHeight = ref(420);
+const mapsReady = computed(() => !dataLoading.value && !dataError.value && dates.value.every((_,i) => mapStates.value[i] === 'ready'));
 const timeline = ref<HTMLElement>(), timelineBounds = ref({ left: 0, width: 0 }), timelineHeight = ref(84);
 const stackedComparison = computed(() => compare.value && mapWidth.value < 920);
 let layoutObserver: ResizeObserver | undefined;
@@ -172,13 +189,20 @@ watch([panel, compact], async () => {
 });
 let timer: ReturnType<typeof setInterval>, media: MediaQueryList;
 function measureTimeline() {
-  if (!mapWorkspace.value || !timeline.value) return;
+  if (!mapWorkspace.value || !timeline.value || immersive.value) return;
   const bounds = mapWorkspace.value.getBoundingClientRect();
   timelineBounds.value = { left: bounds.left, width: bounds.width };
   timelineHeight.value = timeline.value.offsetHeight;
+  const app = mapWorkspace.value.closest<HTMLElement>('.atlas-app')!;
+  const appStyle = getComputedStyle(app);
+  const overhead = [...mapWorkspace.value.querySelectorAll<HTMLElement>('.map-toolbar,.mobile-toolbar,.map-footer,.notice,.panel-error')].reduce((height, element) => height + element.offsetHeight, 0);
+  mobileMapHeight.value = Math.max(420, window.innerHeight - overhead - timelineHeight.value - parseFloat(appStyle.paddingTop) - parseFloat(appStyle.paddingBottom) - 2);
 }
+function mobilePresentationChange() { mobilePresentation.value = mobileMedia.matches; void nextTick(measureTimeline); }
+watch(immersive, async value => { if (value) panel.value = null; await nextTick(); measureTimeline(); });
 function layoutChange() { compact.value = media.matches; panel.value = null; void nextTick(measureTimeline); }
 onMounted(() => {
+  mobileMedia.addEventListener('change', mobilePresentationChange);
   media = window.matchMedia('(max-width: 1099px)'); layoutChange(); media.addEventListener('change', layoutChange);
   layoutObserver = new ResizeObserver(entries => {
     for (const entry of entries) if (entry.target === mapWorkspace.value) mapWidth.value = entry.contentRect.width;
@@ -186,27 +210,29 @@ onMounted(() => {
   });
   if (mapWorkspace.value) layoutObserver.observe(mapWorkspace.value);
   if (timeline.value) layoutObserver.observe(timeline.value);
+  for (const element of mapWorkspace.value?.querySelectorAll('.map-toolbar,.map-footer') ?? []) layoutObserver.observe(element);
   measureTimeline(); window.addEventListener('resize', measureTimeline);
   prepareTerms(); void initialize(); timer = setInterval(refreshLimits, 30000);
   document.addEventListener('visibilitychange', refreshLimits);
 });
 onBeforeUnmount(() => {
-  layoutObserver?.disconnect();
+  layoutObserver?.disconnect(); mobileMedia.removeEventListener('change', mobilePresentationChange);
   ++initialization; clearInitialCalculations(); clearInterval(timer); media?.removeEventListener('change', layoutChange);
   document.removeEventListener('visibilitychange', refreshLimits);
   window.removeEventListener('resize', measureTimeline);
 });
 </script>
 <template>
-  <main class="atlas-app" :class="{'stacked-comparison':stackedComparison}">
+  <main class="atlas-app" :class="{'stacked-comparison':stackedComparison,'mobile-presentation':mobilePresentation,'immersive':immersive}">
     <audio ref="playbackAudio" :src="pianoUrl" loop preload="none" hidden></audio>
     <div class="workspace">
-      <section ref="mapWorkspace" class="map-workspace" aria-label="中国昼夜观测台">
-        <header class="map-toolbar">
+      <section ref="mapWorkspace" class="map-workspace" :data-fullscreen="fullscreenMode" :style="{'--mobile-map-height':`${mobileMapHeight}px`}" aria-label="中国昼夜观测台">
+        <header class="map-toolbar" :class="{'with-page-actions':compact}">
           <div class="brand">
             <span class="brand-symbol" aria-hidden="true"><UiIcon name="sun" /></span>
             <div class="map-title"><span class="eyebrow">日光观测台</span><h1>中国昼夜地图</h1></div>
           </div>
+          <HeaderActions v-if="compact" :dark="darkMode" @theme="toggleTheme" />
           <MapClock :minute="minute" :playing="playing" :ready="ready" :music-enabled="musicEnabled" @toggle="togglePlayback" @music="toggleMusic" />
         </header>
         <div v-if="compact" class="mobile-toolbar">
@@ -217,7 +243,13 @@ onBeforeUnmount(() => {
         <div v-if="musicEnabled && audioError" class="notice audio-notice" role="status"><span>{{audioError}}</span><button :disabled="!playing" @click="retryAudio">重试音乐</button></div>
         <div v-if="dataError" class="panel-error" role="alert">{{dataError}}<button @click="initialize">重试全国数据</button></div>
         <div class="maps" :class="{comparing:compare}">
-          <MapPane v-for="(date,i) in dates" :key="i" :number="i" :date="date" :minute="minute" :vector="vectors[i]" :selected="selected" :camera="camera" @select="selectFromMap" @camera="camera=$event" @status="onStatus(i,$event)" />
+          <MapPane v-for="(date,i) in dates" :key="i" :number="i" :date="date" :minute="minute" :vector="vectors[i]" :selected="selected" :camera="camera" :show-inset="!mobilePresentation" :compact-labels="mobilePresentation" :immersive="immersive" @select="selectFromMap" @camera="camera=$event" @status="onStatus(i,$event)" />
+          <div class="map-view-controls" aria-label="地图显示操作">
+            <button v-if="immersive" class="map-play-button" :disabled="!ready" :aria-label="playing?'暂停播放':'开始播放'" :aria-pressed="playing" @click="togglePlayback"><UiIcon :name="playing?'pause':'play'" /></button>
+            <button v-if="immersive" aria-label="退出全屏" title="退出全屏" @click="exitFullscreen"><UiIcon name="close" /></button>
+            <button v-else aria-label="全屏查看地图" title="全屏查看地图" :disabled="!mapsReady||fullscreenPending" @click="enterFullscreen"><UiIcon name="extent" /></button>
+          </div>
+          <div v-if="immersive && phaseError" class="map-error" role="alert"><span>{{phaseError}}</span><button @click="retryCalculations">重试播放计算</button></div>
         </div>
         <footer class="map-footer">
           <span class="map-hint"><UiIcon name="pin" />点击省份，查看当地日光</span>
@@ -225,8 +257,8 @@ onBeforeUnmount(() => {
         </footer>
         <div class="timeline-space" aria-hidden="true" :style="{height:`${timelineHeight}px`}"></div>
       </section>
-      <aside v-if="!compact" class="observation-rail" aria-label="日期与地区观测">
-        <div class="rail-heading"><h2>观测记录</h2><UiIcon name="sun" /></div>
+      <aside v-if="!compact" class="observation-rail" :inert="immersive" aria-label="日期与地区观测">
+        <div class="rail-heading"><h2>观测记录</h2><HeaderActions :dark="darkMode" @theme="toggleTheme" /></div>
         <SolarTermPanel :dates="dates" :min="limits.min" :max="limits.max" :today="today" :year="termYear" :compare="compare" :target="target" :terms="terms" :disabled="dataLoading||!!dataError||!segments.length" :error="phaseError||termError" @date="setDate" @compare="toggleCompare" @target="target=$event" @term="selectTerm" @retry="retryCalculations">
           <Transition name="details" mode="out-in" @after-enter="restoreDetailsFocus">
             <section v-if="selected && detailsOpen" class="details-card" key="open">
@@ -238,7 +270,7 @@ onBeforeUnmount(() => {
         </SolarTermPanel>
       </aside>
     </div>
-    <div ref="timeline" class="fixed-timeline" :style="{left:`${timelineBounds.left}px`,width:`${timelineBounds.width}px`}">
+    <div v-show="!immersive" ref="timeline" class="fixed-timeline" :style="{left:`${timelineBounds.left}px`,width:`${timelineBounds.width}px`}">
       <TimeScrubber :minute="minute" :ready="ready" @scrubstart="cancelPlayback" @seek="seekMinute" />
     </div>
     <dialog v-if="compact" ref="dialog" class="mobile-dialog" :aria-label="panel==='region'?'地区详情':'日期与节气'" @cancel.prevent="closePanel" @close="onDialogClose">

@@ -138,7 +138,9 @@ test('首次图形初始化失败可重试恢复，再准备全国播放',async(
 });
 test('主图和附图图形上下文丢失后重建并恢复绘制',async({page})=>{
   await page.goto('/');await ready(page);await page.waitForTimeout(300);
-  for(const selector of ['.map-canvas canvas','.inset-canvas canvas']){
+  const selectors=['.map-canvas canvas'];
+  if(await page.locator('.inset-canvas canvas').count())selectors.push('.inset-canvas canvas');
+  for(const selector of selectors){
     const original=await page.locator(selector).elementHandle();const lost=await original!.evaluate(canvas=>{const gl=(canvas as HTMLCanvasElement).getContext('webgl2');const e=gl?.getExtension('WEBGL_lose_context');if(!e)return false;e.loseContext();return true;});
     test.skip(!lost,'浏览器未提供上下文丢失测试扩展');await expect(page.locator('.map-error')).toBeVisible();await page.locator('.map-error button').click();await ready(page);
     expect(await original!.evaluate(canvas=>canvas.isConnected)).toBe(false);await expect(page.locator('.map-error')).toHaveCount(0);

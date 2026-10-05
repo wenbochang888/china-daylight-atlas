@@ -24,12 +24,13 @@ async function shot(page, name) {
   await page.screenshot({ path: `${output}/${name}.png`, fullPage: true });
   const metrics = await page.evaluate(() => ({
     overflow: document.documentElement.scrollWidth > innerWidth,
+    mobilePresentation: document.querySelector('.atlas-app').classList.contains('mobile-presentation'),
     maps: [...document.querySelectorAll('.map-canvas')].map(e => ({ width: e.clientWidth, height: e.clientHeight })),
     seasonGroups: document.querySelectorAll('.season').length,
     dialogOpen: !!document.querySelector('dialog[open]'),
     islandLabels: [...document.querySelectorAll('.map-pane')].map(e => e.__vueParentComponent.exposed.getInsetLabels()),
   }));
-  if (fixedMap && !['loading','resource-error'].includes(name)) for (const labels of metrics.islandLabels) {
+  if (fixedMap && !metrics.mobilePresentation && !['loading','resource-error'].includes(name)) for (const labels of metrics.islandLabels) {
     for (const label of ['东沙群岛','西沙群岛','中沙群岛','南沙群岛','黄岩岛','曾母暗沙'])
       if (!labels.includes(label)) throw new Error(`Missing inset label: ${name} ${label}`);
   }

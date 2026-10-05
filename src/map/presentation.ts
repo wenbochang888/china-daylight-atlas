@@ -1,6 +1,16 @@
 import type { FeatureCollection, Position } from 'geojson';
 
 type Bounds = [number, number, number, number];
+// Map-only compact text. Official names and astronomical points stay untouched.
+const provinceShortNames: Readonly<Record<string,string>> = {
+  '156110000':'京','156120000':'津','156130000':'冀','156140000':'晋','156150000':'蒙',
+  '156210000':'辽','156220000':'吉','156230000':'黑','156310000':'沪','156320000':'苏',
+  '156330000':'浙','156340000':'皖','156350000':'闽','156360000':'赣','156370000':'鲁',
+  '156410000':'豫','156420000':'鄂','156430000':'湘','156440000':'粤','156450000':'桂',
+  '156460000':'琼','156500000':'渝','156510000':'川','156520000':'贵','156530000':'云',
+  '156540000':'藏','156610000':'陕','156620000':'甘','156630000':'青','156640000':'宁',
+  '156650000':'新','156710000':'台','156810000':'港','156820000':'澳',
+};
 function polygonBounds(rings: Position[][]): Bounds {
   const bounds: Bounds = [Infinity, Infinity, -Infinity, -Infinity];
   for (const ring of rings) for (const [lng, lat] of ring) {
@@ -52,7 +62,7 @@ export function provinceLabelPresentation(labels: FeatureCollection, provinces: 
   return { type: 'FeatureCollection', features: labels.features.filter(feature => feature.properties?.level === 'province').map(feature => {
     const id = String(feature.properties?.id), name = String(feature.properties?.name);
     const center = fixed.has(id) ? undefined : centers.get(id);
-    return { ...feature, properties: { ...feature.properties, displayLevel: 'province', narrowName: name.replace('自治区','\n自治区') },
+    return { ...feature, properties: { ...feature.properties, displayLevel: 'province', shortName: provinceShortNames[id] ?? name },
       geometry: center ? { type: 'Point' as const, coordinates: center } : feature.geometry };
   }) };
 }

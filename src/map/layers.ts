@@ -60,11 +60,13 @@ export function installLayers(map: LibreMap, provinces: FeatureCollection, bound
     paint:{'text-color':mapColors.night,'text-halo-color':'#fff','text-halo-width':1.2} });
   return solar;
 }
-export function resizeProvinceLabels(map: LibreMap, labels: FeatureCollection) {
-  const narrow = map.getContainer().clientWidth < 600;
-  map.setLayoutProperty('labels-province', 'text-size', narrow ? 10 : 12);
-  map.setLayoutProperty('labels-province', 'text-field', ['get', narrow ? 'narrowName' : 'name']);
-  for (const layer of ['key-province-labels','taiwan-label']) map.setLayoutProperty(layer, 'text-size', narrow ? 10 : 11);
+export function resizeProvinceLabels(map: LibreMap, labels: FeatureCollection, compactLabels = false) {
+  const compact = compactLabels || map.getContainer().clientWidth < 600;
+  map.setLayoutProperty('labels-province', 'text-size', 12);
+  map.setLayoutProperty('labels-province', 'text-field', ['get', compact ? 'shortName' : 'name']);
+  map.setLayoutProperty('key-province-labels', 'text-field', compact ? ['get','shortName'] : ['match',['get','id'],'156810000','香港','156820000','澳门',['get','name']]);
+  map.setLayoutProperty('taiwan-label', 'text-field', compact ? ['get','shortName'] : '台湾省');
+  for (const layer of ['key-province-labels','taiwan-label']) map.setLayoutProperty(layer, 'text-size', compact ? 12 : 11);
   for (const layer of ['labels-province','key-province-labels','taiwan-label']) {
     map.setLayoutProperty(layer, 'text-anchor', 'center');
   }
@@ -73,7 +75,9 @@ export function resizeProvinceLabels(map: LibreMap, labels: FeatureCollection) {
   const container = map.getContainer(), bounds = container.getBoundingClientRect();
   type Box = { left: number; top: number; right: number; bottom: number };
   const occupied: Box[] = [];
-  for (const element of container.parentElement?.querySelectorAll('.map-time,.south-sea') ?? []) {
+  const overlays = [...container.parentElement?.querySelectorAll('.map-time,.south-sea') ?? [],
+    ...container.closest('.maps')?.querySelectorAll('.map-view-controls') ?? []];
+  for (const element of overlays) {
     const rect = element.getBoundingClientRect();
     if (rect.width && rect.height) occupied.push({ left:rect.left-bounds.left-4, top:rect.top-bounds.top-4, right:rect.right-bounds.left+4, bottom:rect.bottom-bounds.top+4 });
   }
@@ -95,8 +99,8 @@ export function resizeProvinceLabels(map: LibreMap, labels: FeatureCollection) {
   const features = [...labels.features].sort((a,b)=>Number(!!preferred[String(b.properties?.id)])-Number(!!preferred[String(a.properties?.id)]));
   for (const feature of features) {
     if (feature.geometry.type !== 'Point') continue;
-    const id = String(feature.properties?.id), small = !!preferred[id], size = narrow ? 10 : small ? 11 : 12;
-    const name = id === '156810000' ? '香港' : id === '156820000' ? '澳门' : String(feature.properties?.[narrow?'narrowName':'name']);
+    const id = String(feature.properties?.id), small = !!preferred[id], size = compact ? 12 : small ? 11 : 12;
+    const name = compact ? String(feature.properties?.shortName) : id === '156810000' ? '香港' : id === '156820000' ? '澳门' : String(feature.properties?.name);
     const lines = name.split('\n'), halfWidth = Math.max(...lines.map(line=>line.length))*size/2+3, halfHeight = lines.length*size*1.2/2+3;
     const anchor = map.project(feature.geometry.coordinates.slice(0,2) as [number,number]), bias = preferred[id] ?? [0,0];
     let offset: [number,number] = bias;

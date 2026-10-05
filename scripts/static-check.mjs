@@ -9,7 +9,9 @@ const root = resolve('dist');
 const mime = { '.html':'text/html', '.js':'text/javascript', '.css':'text/css', '.json':'application/json', '.mp3':'audio/mpeg' };
 const audioCheck = process.argv.includes('--audio') || process.argv.includes('--audio-timeline');
 const startupCheck = process.argv.includes('--startup-music');
-const outputDirectory = process.argv.includes('--startup-music') ? 'docs/validation-images/startup-music' : process.argv.includes('--audio-timeline') ? 'docs/validation-images/audio-timeline' : process.argv.includes('--fixed-map') ? 'docs/validation-images/fixed-map' : audioCheck ? 'docs/validation-images/playback-audio' : process.argv.includes('--controls') ? 'docs/validation-images/controls-playback' : 'docs/validation-images/observatory';
+const fullscreenCheck = process.argv.includes('--fullscreen-mobile');
+const outputDirectory = fullscreenCheck ? 'docs/validation-images/fullscreen-mobile' : process.argv.includes('--startup-music') ? 'docs/validation-images/startup-music' : process.argv.includes('--audio-timeline') ? 'docs/validation-images/audio-timeline' : process.argv.includes('--fixed-map') ? 'docs/validation-images/fixed-map' : audioCheck ? 'docs/validation-images/playback-audio' : process.argv.includes('--controls') ? 'docs/validation-images/controls-playback' : 'docs/validation-images/observatory';
+mkdirSync(outputDirectory,{recursive:true});
 const server = createServer(async (request, response) => {
   try {
     const pathname = decodeURIComponent(new URL(request.url, 'http://localhost').pathname);
@@ -30,8 +32,10 @@ try {
   const url = 'http://127.0.0.1:4174/atlas/';
   const viewports = [{width:1440,height:900},{width:768,height:1024},{width:844,height:390}];
   if (startupCheck) viewports.push({width:360,height:800},{width:601,height:900},{width:1100,height:900});
+  if (fullscreenCheck) viewports.push({width:360,height:800},{width:390,height:844},{width:600,height:900},{width:601,height:900});
   for (const viewport of viewports) {
-    const context = await browser.newContext({ viewport, timezoneId:'America/New_York' });
+    const touch = fullscreenCheck && (viewport.width<=600 || viewport.height<=600);
+    const context = await browser.newContext({ viewport, timezoneId:'America/New_York', isMobile:touch, hasTouch:touch });
     const page = await context.newPage();
     const external = [], mapRequests = [];
     page.on('request', request => {
@@ -88,7 +92,30 @@ try {
       mkdirSync(outputDirectory,{recursive:true});
       await page.screenshot({path:`${outputDirectory}/static-${viewport.width}.png`,fullPage:true});
     }
-    results.push({viewport,deviceTimezone:'America/New_York',date,time,...view,externalRequests:external.length,...(music ? {music} : {})});
+    let fullscreen;
+    if (fullscreenCheck) {
+      const compact=await page.locator('.atlas-app').evaluate(e=>e.classList.contains('mobile-presentation'));
+      await expect(page.locator('.inset-canvas canvas')).toHaveCount(compact?0:2);
+      const main=await page.locator('.map-canvas canvas').elementHandles(),audio=await page.locator('audio').elementHandle();
+      await page.getByRole('button',{name:'全屏查看地图',exact:true}).click();
+      await expect(page.getByRole('button',{name:'退出全屏',exact:true})).toBeVisible();
+      await expect(page.locator('.map-toolbar')).not.toBeVisible();await expect(page.locator('.fixed-timeline')).not.toBeVisible();
+      await expect(page.locator('.map-time')).toHaveCount(2);
+      // Vue's development instance metadata is absent from a production build.
+      // Validate public UI and retain rendered screenshots here; label counts are covered by E2E.
+      await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+      fullscreen=await page.evaluate(()=>{
+        const maps=document.querySelector('.maps'),b=document.querySelector('.map-workspace').getBoundingClientRect();
+        return {mode:document.querySelector('.map-workspace').dataset.fullscreen,width:b.width,height:b.height,viewportWidth:innerWidth,viewportHeight:innerHeight,
+          columns:getComputedStyle(maps).gridTemplateColumns.split(' ').length,overflow:maps.scrollHeight>maps.clientHeight};
+      });
+      if(fullscreen.width!==fullscreen.viewportWidth || fullscreen.height!==fullscreen.viewportHeight || fullscreen.overflow || fullscreen.columns!==(fullscreen.width>fullscreen.height?2:1))throw new Error(JSON.stringify(fullscreen));
+      await page.screenshot({path:`${outputDirectory}/production-fullscreen-${viewport.width}.png`});
+      await page.getByRole('button',{name:'退出全屏',exact:true}).click();await expect(page.getByTestId('clock')).toHaveText(time);
+      for(let i=0;i<2;i++)if(!await main[i].evaluate((e,i)=>e===document.querySelectorAll('.map-canvas canvas')[i],i))throw new Error('Fullscreen recreated the main map');
+      if(!await audio.evaluate(e=>e===document.querySelector('audio')))throw new Error('Fullscreen recreated audio');
+    }
+    results.push({viewport,deviceTimezone:'America/New_York',date,time,...view,externalRequests:external.length,...(music ? {music} : {}),...(fullscreen?{fullscreen}:{})});
     await context.close();
   }
   if(failures.length) throw new Error(failures.join('\n'));

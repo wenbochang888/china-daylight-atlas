@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-05",
+  "mount": "/atlas/",
+  "results": [
+    {
+      "scenario": "desktop-chromium",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "checks": [
+        "GitHub目标及新标签页跳转",
+        "亮暗切换及键盘焦点",
+        "主题保存及刷新恢复",
+        "存储失败时正常切换",
+        "暗色日历及关闭焦点",
+        "单图双图时间保持",
+        "无水平溢出",
+        "无页面及资源错误"
+      ],
+      "passed": true
+    },
+    {
+      "scenario": "mobile-chromium",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "checks": [
+        "GitHub目标及新标签页跳转",
+        "亮暗切换及键盘焦点",
+        "主题保存及刷新恢复",
+        "存储失败时正常切换",
+        "暗色日历及关闭焦点",
+        "单图双图时间保持",
+        "无水平溢出",
+        "无页面及资源错误"
+      ],
+      "passed": true
+    },
+    {
+      "scenario": "mobile-webkit",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "checks": [
+        "GitHub目标及新标签页跳转",
+        "亮暗切换及键盘焦点",
+        "主题保存及刷新恢复",
+        "存储失败时正常切换",
+        "暗色日历及关闭焦点",
+        "单图双图时间保持",
+        "无水平溢出",
+        "无页面及资源错误"
+      ],
+      "passed": true
+    }
+  ]
+}

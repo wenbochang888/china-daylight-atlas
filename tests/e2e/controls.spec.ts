@@ -1,5 +1,4 @@
 import { expect, test, type Page } from '@playwright/test';
-import { mkdirSync } from 'node:fs';
 import { chooseDate } from '../helpers/date-picker';
 const pageErrors=new WeakMap<Page,string[]>();
 test.beforeEach(({page})=>{const errors:string[]=[];pageErrors.set(page,errors);page.on('pageerror',e=>errors.push(e.message));});
@@ -72,13 +71,14 @@ test('双图共用一条时间轴，拖动同步主图、附图和地点详情',
   await page.locator('.map-canvas').first().click({position:{x:point.x,y:point.y}});
   await expect(page.locator('.detail-loading')).toHaveCount(0,{timeout:30000});await closePanel(page);
   await seek(page,0);await expect(page.getByTestId('clock')).toHaveText('00:00');await expect(page.getByTestId('map-clock')).toHaveText(['00:00','00:00']);
-  const canvases=page.locator('.map-canvas canvas,.inset-canvas canvas');await expect(canvases).toHaveCount(4);
-  const before=[];for(let i=0;i<4;i++)before.push(await canvases.nth(i).screenshot());
+  const canvases=page.locator('.map-canvas canvas,.inset-canvas canvas');await expect(canvases).toHaveCount(await page.locator('.atlas-app').evaluate(e=>e.classList.contains('mobile-presentation')) ? 2 : 4);
+  const canvasCount=await canvases.count();
+  const before=[];for(let i=0;i<canvasCount;i++)before.push(await canvases.nth(i).screenshot());
   const details=page.getByRole('button',{name:'地区详情',exact:true});if(await details.isVisible())await details.click();
   await expect(page.getByRole('heading',{name:'湖南省',exact:true})).toBeVisible();
   await expect(page.locator('.light-state')).toHaveText(['黑夜','黑夜']);await closePanel(page);
   await seek(page,720);await expect(page.getByTestId('clock')).toHaveText('12:00');await expect(page.getByTestId('map-clock')).toHaveText(['12:00','12:00']);
-  for(let i=0;i<4;i++)expect((await canvases.nth(i).screenshot()).equals(before[i])).toBe(false);
+  for(let i=0;i<canvasCount;i++)expect((await canvases.nth(i).screenshot()).equals(before[i])).toBe(false);
   if(await details.isVisible())await details.click();await expect(page.locator('.light-state')).toHaveText(['白天','白天']);await closePanel(page);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
@@ -113,8 +113,7 @@ test('两整年当年节气、固定底栏和34省名在单图与双图中可用
   expect((await page.locator('.term-button small').allTextContents()).every(value=>value.startsWith('2026-'))).toBe(true);
   await chooseDate(page,0,'2026-12-31');await closePanel(page);await expect(page.locator('.map-day')).toHaveText('2026.12.31');
   await seek(page,1146);await expect(page.getByTestId('map-clock')).toHaveText('19:06');
-  mkdirSync('docs/validation-images/layout-two-year',{recursive:true});
-  await page.screenshot({path:`docs/validation-images/layout-two-year/${info.project.name.includes('mobile')?'mobile':'desktop'}.png`,fullPage:true});
+  await page.screenshot({path:info.outputPath('layout-two-year.png'),fullPage:true});
   await datePanel(page);await chooseDate(page,0,'2025-01-01');await page.getByRole('button',{name:'两天对比',exact:true}).click();await closePanel(page);await ready(page);
   await expect(slider).toHaveCount(1);await expect.poll(labels).toEqual([34,34]);
   await page.evaluate(()=>{window.scrollTo(0,document.documentElement.scrollHeight);const map=document.querySelector('.map-workspace')!;map.scrollTop=map.scrollHeight;});

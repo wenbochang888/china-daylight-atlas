@@ -8,7 +8,7 @@ import { emptyCollection, highlight, installLayers, mapStyle, resizeProvinceLabe
 import { nationalPresentation } from '../map/national-presentation';
 import type { SolarLayer } from '../map/solar-layer';
 
-const props = defineProps<{ date: string; minute: number; vector: SunVector; selected: Region | null; camera: Camera | null; number: number }>();
+const props = defineProps<{ date: string; minute: number; vector: SunVector; selected: Region | null; camera: Camera | null; number: number; showInset: boolean; compactLabels: boolean; immersive: boolean }>();
 const emit = defineEmits<{ select: [id: string]; camera: [value: Camera]; status: [value: 'loading'|'ready'|'error'] }>();
 const container = ref<HTMLDivElement>(), insetContainer = ref<HTMLDivElement>(), timeCard = ref<HTMLDivElement>();
 const loading = ref(true), error = ref(''), timePoint = ref({ x: 0, y: 0 });
@@ -44,7 +44,7 @@ function updateTimePosition() {
   timePoint.value = { x: Math.max(halfWidth, Math.min(container.value.clientWidth - halfWidth, point.x)),
     y: narrowMap.value ? halfHeight : Math.max(halfHeight, Math.min(container.value.clientHeight - halfHeight, point.y)) };
 }
-function updateLabels() { if (map && !loading.value && !renderFailed) labelPositions = resizeProvinceLabels(map, provinceLabels); }
+function updateLabels() { if (map && !loading.value && !renderFailed) labelPositions = resizeProvinceLabels(map, provinceLabels, props.compactLabels); }
 function renderError(message: string) {
   renderFailed = true; ++generation; loading.value = false; error.value = message; emit('status','error');
 }
@@ -61,14 +61,17 @@ function applyCamera(value: Camera) {
 function fitNational() {
   if (!map || loading.value || renderFailed) return;
   syncing = true;
-  const padding = window.matchMedia('(max-width: 600px)').matches ? 16 : 24;
-  map.fitBounds(nationalBounds, { padding: narrowMap.value ? {top:(timeCard.value?.offsetHeight||108)+24,left:padding,right:padding,bottom:padding} : padding, duration: 0 });
+  const padding = props.compactLabels ? 16 : 24;
+  const safeTop = props.immersive && timeCard.value ? parseFloat(getComputedStyle(timeCard.value).marginTop) || 0 : 0;
+  const safe = props.immersive && container.value?.parentElement ? getComputedStyle(container.value.parentElement) : undefined;
+  map.fitBounds(nationalBounds, { padding: narrowMap.value || props.immersive ? {top:(narrowMap.value ? (timeCard.value?.offsetHeight||108)+24 : padding)+safeTop,
+    left:padding+(parseFloat(safe?.paddingLeft ?? '')||0),right:padding+(parseFloat(safe?.paddingRight ?? '')||0),bottom:padding+(parseFloat(safe?.paddingBottom ?? '')||0)} : padding, duration: 0 });
   syncing = false; updateTimePosition(); publishCamera();
   void nextTick(updateLabels);
 }
 function fitInset() { inset?.fitBounds([[104,2],[124,25]], { padding: 5, duration: 0 }); }
 function finishLoading() {
-  if (!map || !mainReady || !insetReady || disposed || renderFailed) return;
+  if (!map || !mainReady || (props.showInset && !insetReady) || disposed || renderFailed) return;
   loading.value = false; highlight(map, props.selected?.id ?? null);
   if (props.number === 0) fitNational();
   else if (props.camera) applyCamera(props.camera);
@@ -80,9 +83,9 @@ async function initialize() {
   loading.value = true; error.value = ''; disposed = false; renderFailed = false; mainReady = false; insetReady = false; emit('status','loading');
   const attempt = ++generation;
   try {
-    const { provinces, boundaries, islandLabels, main: presentation, provinceLabels: labels } = nationalPresentation();
+    const { islandLabels, main: presentation, provinceLabels: labels } = nationalPresentation();
     await nextTick();
-    if (disposed || attempt !== generation || !container.value || !insetContainer.value) return;
+    if (disposed || attempt !== generation || !container.value) return;
     nationalBounds = presentation.bounds; provinceLabels = labels;
     narrowMap.value = container.value.clientWidth < 600;
     provinceCenters = new Map(labels.features.flatMap(f => f.geometry.type === 'Point' ? [[String(f.properties?.id), f.geometry.coordinates.slice(0,2) as [number,number]] as const] : []));
@@ -99,42 +102,66 @@ async function initialize() {
       } catch (cause) { renderError(`地图渲染失败：${String(cause)}`); }
     });
     map.on('click', event => {
-      if (map !== primaryMap || loading.value || renderFailed) return;
+      if (map !== primaryMap || loading.value || renderFailed || props.immersive) return;
       const id = provinceAt(event.point);
       if (id) emit('select', id);
     });
     map.on('mousemove', event => {
       if (map === primaryMap && !loading.value && !renderFailed)
-        map.getCanvas().style.cursor = provinceAt(event.point) ? 'pointer' : '';
+        map.getCanvas().style.cursor = !props.immersive && provinceAt(event.point) ? 'pointer' : '';
     });
     map.getCanvas().addEventListener('webglcontextlost', () => { if (map === primaryMap) renderError('图形上下文已丢失，请重试加载。'); });
-    inset = new maplibregl.Map({ container: insetContainer.value, style: structuredClone(mapStyle), center: [113.5,13], zoom: 2.1,
-      interactive: false, attributionControl: false, renderWorldCopies: false, localIdeographFontFamily: 'sans-serif' });
-    const insetMap = inset;
-    inset.on('error', event => { if (inset === insetMap) renderError(`南海附图渲染失败：${event.error?.message ?? '请重试'}`); });
-    inset.getCanvas().addEventListener('webglcontextlost', () => { if (inset === insetMap) renderError('南海附图图形上下文已丢失，请重试加载。'); });
-    inset.on('load', () => {
-      if (inset !== insetMap) return;
-      try {
-        insetSolar = installLayers(insetMap, provinces, boundaries, emptyCollection, islandLabels, true); insetSolar.setVector(props.vector);
-        fitInset(); insetMap.once('idle', () => { if (inset === insetMap && !renderFailed) { insetReady = true; finishLoading(); } });
-      } catch (cause) { renderError(`南海附图渲染失败：${String(cause)}`); }
-    });
-    resizeObserver = new ResizeObserver(() => {
-      narrowMap.value = !!container.value && container.value.clientWidth < 600;
-      map?.resize(); inset?.resize();
-      if (!loading.value && !renderFailed) {
-        fitInset();
-        if (props.number === 0) fitNational(); else { updateTimePosition(); void nextTick(updateLabels); }
-      }
-    });
-    resizeObserver.observe(container.value); resizeObserver.observe(insetContainer.value);
+    createInset();
+    resizeObserver = new ResizeObserver(refreshLayout);
+    resizeObserver.observe(container.value);
   } catch (cause) { renderError(`地图初始化失败：${cause instanceof Error ? cause.message : String(cause)}`); }
 }
+function createInset() {
+  if (!props.showInset || !insetContainer.value || inset || disposed || renderFailed) return;
+  const { provinces, boundaries, islandLabels } = nationalPresentation();
+  const insetMap = new maplibregl.Map({ container: insetContainer.value, style: structuredClone(mapStyle), center: [113.5,13], zoom: 2.1,
+    interactive: false, attributionControl: false, renderWorldCopies: false, localIdeographFontFamily: 'sans-serif' });
+  inset = insetMap; insetReady = false;
+  insetMap.on('error', event => { if (inset === insetMap) renderError(`南海附图渲染失败：${event.error?.message ?? '请重试'}`); });
+  insetMap.getCanvas().addEventListener('webglcontextlost', () => { if (inset === insetMap) renderError('南海附图图形上下文已丢失，请重试加载。'); });
+  insetMap.on('load', () => {
+    if (inset !== insetMap || disposed || renderFailed) return;
+    try {
+      insetSolar = installLayers(insetMap, provinces, boundaries, emptyCollection, islandLabels, true); insetSolar.setVector(props.vector);
+      fitInset(); insetMap.once('idle', () => {
+        if (inset === insetMap && !renderFailed) { insetReady = true; if (loading.value) finishLoading(); }
+      });
+    } catch (cause) { renderError(`南海附图渲染失败：${String(cause)}`); }
+  });
+}
+function removeInset() {
+  const previous = inset; inset = undefined; insetSolar = undefined; insetReady = false; previous?.remove();
+}
+function refreshLayout() {
+  narrowMap.value = !!container.value && container.value.clientWidth < 600;
+  map?.resize(); inset?.resize();
+  if (!loading.value && !renderFailed) {
+    fitInset();
+    if (props.number === 0) fitNational(); else { updateTimePosition(); void nextTick(updateLabels); }
+  }
+}
+watch(() => props.showInset, async value => {
+  if (!value) { removeInset(); if (loading.value) finishLoading(); }
+  await nextTick();
+  if (disposed || renderFailed || !map) return;
+  try { if (props.showInset) createInset(); refreshLayout(); }
+  catch (cause) { renderError(`南海附图初始化失败：${String(cause)}`); }
+});
+watch([() => props.compactLabels, () => props.immersive], async () => {
+  await nextTick();
+  if (disposed || renderFailed) return;
+  if (map) map.getCanvas().style.cursor = '';
+  refreshLayout();
+});
 function cleanup() {
   disposed = true; ++generation; resizeObserver?.disconnect();
-  const previousMap = map, previousInset = inset; map = undefined; inset = undefined; solar = undefined; insetSolar = undefined;
-  previousMap?.remove(); previousInset?.remove();
+  const previousMap = map; map = undefined; solar = undefined; removeInset();
+  previousMap?.remove();
 }
 function retry() { cleanup(); void initialize(); }
 watch(() => props.vector, value => { solar?.setVector(value); insetSolar?.setVector(value); });
@@ -151,17 +178,18 @@ defineExpose({ isLoaded: () => !!map?.loaded(), getView: () => map ? { center: m
   projectPoint: (point: [number,number]) => map?.project(point),
   getProvinceLabelPoint: (id: string) => labelPositions.get(id) ?? null,
   getProvinceLabels: () => map?.queryRenderedFeatures(undefined, { layers: ['labels-province','key-province-labels','taiwan-label'] }).map(f => String(f.properties.id)) ?? [],
+  getProvinceLabelStyles: () => ['labels-province','key-province-labels','taiwan-label'].map(id => ({id, text:map?.getLayoutProperty(id,'text-field'), size:map?.getLayoutProperty(id,'text-size')})),
   getInsetLabels: () => inset?.queryRenderedFeatures(undefined, { layers: ['island-groups','island-names'] }).map(f => String(f.properties.name)) ?? [] });
 </script>
 
 <template>
-  <section class="map-pane" :class="{'narrow-map':narrowMap}" :aria-label="`${date} 昼夜地图`">
+  <section class="map-pane" :class="{'narrow-map':narrowMap,'without-inset':!showInset,'immersive-pane':immersive}" :aria-label="`${date} 昼夜地图`">
     <div ref="container" class="map-canvas" :data-map="number"></div>
-    <div v-if="!loading && !error" ref="timeCard" class="map-time" aria-hidden="true" :style="{left:`${timePoint.x}px`,top:`${timePoint.y}px`}">
+    <div v-if="!loading && !error" ref="timeCard" class="map-time" :aria-hidden="!immersive" :style="{left:`${timePoint.x}px`,top:`${timePoint.y}px`}">
       <time class="map-day" :datetime="date">{{date.replaceAll('-','.')}}</time>
-      <span>北京时间</span><strong data-testid="map-clock">{{formatMinute(minute)}}</strong>
+      <div class="map-time-value"><span>北京时间</span><strong data-testid="map-clock">{{formatMinute(minute)}}</strong></div>
     </div>
-    <div class="south-sea" aria-label="南海诸岛附图"><div class="inset-title">南海诸岛</div><div ref="insetContainer" class="inset-canvas"></div></div>
+    <div v-if="showInset" class="south-sea" aria-label="南海诸岛附图"><div class="inset-title">南海诸岛</div><div ref="insetContainer" class="inset-canvas"></div></div>
     <div v-if="loading" class="map-message" role="status"><span class="spinner"></span>正在准备地图…</div>
     <div v-if="error" class="map-error" role="alert"><span>{{error}}</span><button @click="retry">重试</button></div>
   </section>

@@ -7,6 +7,17 @@ const provinces: FeatureCollection = JSON.parse(readFileSync('public/maps/provin
 const boundaries: FeatureCollection = JSON.parse(readFileSync('public/maps/context/boundaries.json', 'utf8'));
 const labels: FeatureCollection = JSON.parse(readFileSync('public/maps/labels.json', 'utf8'));
 describe('省名显示锚点', () => {
+  it('34个单字展示简称按行政区ID对应，保留完整名称和原始输入', () => {
+    const original = JSON.stringify(labels);
+    const display = provinceLabelPresentation(labels, mainMapPresentation(provinces,boundaries).provinces);
+    const expected = ['京','津','冀','晋','蒙','辽','吉','黑','沪','苏','浙','皖','闽','赣','鲁','豫','鄂','湘','粤','桂','琼','渝','川','贵','云','藏','陕','甘','青','宁','新','台','港','澳'];
+    expect(display.features.map(feature=>feature.properties?.shortName)).toEqual(expected);
+    expect(new Set(expected).size).toBe(34);
+    for (const feature of display.features) {
+      expect(feature.properties?.name).toBe(labels.features.find(source=>source.properties?.id===feature.properties?.id)!.properties?.name);
+    }
+    expect(JSON.stringify(labels)).toBe(original);
+  });
   it('保留34名称和原始数据，青海使用省域质心、面外质心和特殊省份保留官方点', () => {
     const original = JSON.stringify(labels);
     const main = mainMapPresentation(provinces, boundaries);
