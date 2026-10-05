@@ -1,4 +1,5 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, type Ref } from 'vue';
+import { nativeIos } from '../platform/runtime';
 
 // Keep the same map subtree mounted in native fullscreen and its viewport fallback.
 export function useMapFullscreen(target: Ref<HTMLElement | undefined>) {
@@ -43,7 +44,7 @@ export function useMapFullscreen(target: Ref<HTMLElement | undefined>) {
     mode.value = 'viewport';
     const attempt = ++generation;
     void nextTick(() => { if (active.value) element.querySelector<HTMLButtonElement>('[aria-label="退出全屏"]')?.focus(); });
-    if (!element.requestFullscreen || document.fullscreenEnabled === false) return;
+    if (nativeIos || !element.requestFullscreen || document.fullscreenEnabled === false) return;
     pending.value = true;
     try {
       // Invoke before yielding so the browser receives the original user gesture.

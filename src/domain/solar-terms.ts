@@ -34,3 +34,8 @@ export function solarTermOptions(limits: {min:string;max:string}): SolarTermOpti
     return {name,date:match?.date??null,instant:match?.instant??null,disabled:!match};
   });
 }
+
+// Match the selected civil day, including 24:00, rather than the moving instant.
+export function solarTermForDate(date: string): string | null {
+  return termsForYear(Number(date.slice(0,4))).find(term => term.date === date)?.name ?? null;
+}

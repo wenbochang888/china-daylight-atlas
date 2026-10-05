@@ -126,7 +126,7 @@ test('换日及单双图按当前时刻重新定位音乐，节气从头联动�
   await page.getByRole('slider',{name:'北京时间时间轴'}).fill('360'); await musicAt(page,360,[termDate]);
   await datePanel(page); await page.getByRole('button',{name:'两天对比',exact:true}).click(); await closePanel(page); await ready(page);
   await expect(page.locator('audio')).toHaveCount(1); await expect(page.locator('.map-pane')).toHaveCount(2);
-  const comparisonDates=(await page.locator('.map-day').allTextContents()).map(date=>date.replaceAll('.','-'));
+  const comparisonDates=await page.locator('.map-day').evaluateAll(days=>days.map(day=>day.getAttribute('datetime')!));
   await musicAt(page,360,comparisonDates);
   const paused=await time(page); expect(await page.locator('audio').evaluate((audio: HTMLAudioElement)=>audio.paused)).toBe(true);
   await page.getByRole('button',{name:'开始播放',exact:true}).click(); await expect.poll(()=>time(page)).toBeGreaterThan(paused+0.15);

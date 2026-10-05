@@ -9,8 +9,9 @@ const root = resolve('dist');
 const mime = { '.html':'text/html', '.js':'text/javascript', '.css':'text/css', '.json':'application/json', '.mp3':'audio/mpeg' };
 const audioCheck = process.argv.includes('--audio') || process.argv.includes('--audio-timeline');
 const startupCheck = process.argv.includes('--startup-music');
-const fullscreenCheck = process.argv.includes('--fullscreen-mobile');
-const outputDirectory = fullscreenCheck ? 'docs/validation-images/fullscreen-mobile' : process.argv.includes('--startup-music') ? 'docs/validation-images/startup-music' : process.argv.includes('--audio-timeline') ? 'docs/validation-images/audio-timeline' : process.argv.includes('--fixed-map') ? 'docs/validation-images/fixed-map' : audioCheck ? 'docs/validation-images/playback-audio' : process.argv.includes('--controls') ? 'docs/validation-images/controls-playback' : 'docs/validation-images/observatory';
+const labelCheck = process.argv.includes('--map-labels-terms');
+const fullscreenCheck = process.argv.includes('--fullscreen-mobile') || labelCheck;
+const outputDirectory = labelCheck ? 'docs/validation-images/map-labels-terms' : fullscreenCheck ? 'docs/validation-images/fullscreen-mobile' : process.argv.includes('--startup-music') ? 'docs/validation-images/startup-music' : process.argv.includes('--audio-timeline') ? 'docs/validation-images/audio-timeline' : process.argv.includes('--fixed-map') ? 'docs/validation-images/fixed-map' : audioCheck ? 'docs/validation-images/playback-audio' : process.argv.includes('--controls') ? 'docs/validation-images/controls-playback' : 'docs/validation-images/observatory';
 mkdirSync(outputDirectory,{recursive:true});
 const server = createServer(async (request, response) => {
   try {
@@ -33,6 +34,7 @@ try {
   const viewports = [{width:1440,height:900},{width:768,height:1024},{width:844,height:390}];
   if (startupCheck) viewports.push({width:360,height:800},{width:601,height:900},{width:1100,height:900});
   if (fullscreenCheck) viewports.push({width:360,height:800},{width:390,height:844},{width:600,height:900},{width:601,height:900});
+  if (labelCheck) viewports.push({width:599,height:900});
   for (const viewport of viewports) {
     const touch = fullscreenCheck && (viewport.width<=600 || viewport.height<=600);
     const context = await browser.newContext({ viewport, timezoneId:'America/New_York', isMobile:touch, hasTouch:touch });
@@ -76,6 +78,7 @@ try {
         throw new Error(JSON.stringify({music,status:response.status(),headers:response.headers()}));
     }
     await page.getByRole('button',{name:'暂停播放',exact:true}).click();
+    if (labelCheck) await expect(page.locator('.map-pane').first().getByTestId('map-solar-term')).toHaveText('（夏至）');
     if (audioCheck && !await page.locator('audio').evaluate(element => element.paused)) throw new Error('Music continued after pausing');
     const time=await page.getByTestId('clock').innerText();
     const view = await page.evaluate(() => ({
@@ -101,6 +104,15 @@ try {
       await expect(page.getByRole('button',{name:'退出全屏',exact:true})).toBeVisible();
       await expect(page.locator('.map-toolbar')).not.toBeVisible();await expect(page.locator('.fixed-timeline')).not.toBeVisible();
       await expect(page.locator('.map-time')).toHaveCount(2);
+      if (labelCheck) {
+        const positions=await page.locator('.map-pane').evaluateAll(panes=>panes.map(pane=>{
+          const canvas=pane.querySelector('.map-canvas').getBoundingClientRect(),info=pane.querySelector('.map-info').getBoundingClientRect();
+          const controls=document.querySelector('.map-view-controls').getBoundingClientRect();
+          return {centred:Math.abs(info.left+info.width/2-canvas.left-canvas.width/2)<1,inside:info.top>=canvas.top&&info.bottom<=canvas.bottom,
+            overlapsControls:info.left<controls.right&&info.right>controls.left&&info.top<controls.bottom&&info.bottom>controls.top};
+        }));
+        if (positions.some(p=>!p.centred||!p.inside||p.overlapsControls)) throw new Error(JSON.stringify(positions));
+      }
       // Vue's development instance metadata is absent from a production build.
       // Validate public UI and retain rendered screenshots here; label counts are covered by E2E.
       await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));

@@ -1,12 +1,15 @@
 import { expect, test, type Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 
-const output='docs/validation-images/fullscreen-mobile';
+const output='docs/validation-images/map-labels-terms';
 const errors=new WeakMap<Page,string[]>();
 test.beforeEach(({page})=>{const list:string[]=[];errors.set(page,list);page.on('pageerror',error=>list.push(error.message));});
 test.afterEach(({page})=>expect(errors.get(page)).toEqual([]));
 async function ready(page:Page){await expect(page.getByRole('button',{name:'开始播放',exact:true})).toBeEnabled({timeout:30000});}
-async function counts(page:Page){return page.locator('.map-pane').evaluateAll(elements=>elements.map(e=>new Set((e as any).__vueParentComponent.exposed.getProvinceLabels()).size));}
+async function counts(page:Page){return page.locator('.map-pane').evaluateAll(elements=>elements.map(e=>{
+  const exposed=(e as any).__vueParentComponent.exposed;
+  return exposed.isLoaded()?new Set(exposed.getProvinceLabels()).size:0;
+}));}
 async function compare(page:Page){
   const opener=page.getByRole('button',{name:'日期与节气',exact:true});if(await opener.isVisible())await opener.click();
   await page.getByRole('button',{name:'两天对比',exact:true}).click();
@@ -94,7 +97,8 @@ test('全屏切换不停止共享播放和音乐，24点停止后可以从同日
   await expect(page.getByTestId('map-clock')).toHaveText('24:00');await expect(page.getByRole('button',{name:'开始播放',exact:true})).toBeVisible();
   expect(await audio!.evaluate((e:HTMLAudioElement)=>e.paused)).toBe(true);
   await page.getByRole('button',{name:'开始播放',exact:true}).click();await page.getByRole('button',{name:'暂停播放',exact:true}).click();
-  expect(await page.getByTestId('map-clock').innerText()).toMatch(/^00:/);await expect(page.locator('.map-day')).toHaveText(date);
+  // 全夜阶段每秒推进90分钟，两次点击之间可能已经跨过00点时段。
+  expect(Number(await page.getByRole('slider',{name:'北京时间时间轴',includeHidden:true}).inputValue())).toBeLessThan(300);await expect(page.locator('.map-day')).toHaveText(date);
 });
 
 test('双图全屏均分空间，旋转后重新拟合且保留34个省名和主画布',async({page},info)=>{

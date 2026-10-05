@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 
-const output = 'docs/validation-images/fullscreen-clock';
+const output = 'docs/validation-images/map-labels-terms';
 async function ready(page: Page) {
   await expect(page.getByRole('button', { name: '开始播放', exact: true })).toBeEnabled({ timeout: 30000 });
 }
@@ -14,21 +14,23 @@ async function checkClockPosition(page: Page) {
     const layout = await pane.evaluate(element => {
       const canvas = element.querySelector('.map-canvas')!.getBoundingClientRect();
       const card = element.querySelector('.map-time')!.getBoundingClientRect();
+      const group = element.querySelector('.map-info')!.getBoundingClientRect();
       const date = element.querySelector('.map-day')!.getBoundingClientRect();
-      const zone = element.querySelector('.map-time span')!.getBoundingClientRect();
+      const zone = element.querySelector('.map-time-value > span')!.getBoundingClientRect();
       const clock = element.querySelector('.map-time strong')!.getBoundingClientRect();
-      const anchor = (element as any).__vueParentComponent.exposed.projectPoint([106, 49.5]);
+      const outlineTop = (element as any).__vueParentComponent.exposed.getOutlineTop();
+      const compact = document.querySelector('.atlas-app')!.classList.contains('mobile-presentation') || canvas.width < 600;
       const controls = document.querySelector('.map-view-controls')!.getBoundingClientRect();
       return { width: canvas.width, height: canvas.height, x: card.x + card.width / 2 - canvas.x,
-        y: card.y + card.height / 2 - canvas.y, cardWidth: card.width, cardHeight: card.height, anchor,
+        outlineTop, groupBottom: group.bottom-canvas.top, groupTop:group.top-canvas.top, compact,
         stacked: date.bottom <= zone.top + 1 && zone.bottom <= clock.top + 1,
         overlapsControls: card.left < controls.right && card.right > controls.left && card.top < controls.bottom && card.bottom > controls.top };
     });
     expect(layout.stacked).toBe(true);
     expect(layout.overlapsControls).toBe(false);
-    expect(layout.x).toBeCloseTo(Math.max(layout.cardWidth / 2 + 8, Math.min(layout.width - layout.cardWidth / 2 - 8, layout.anchor.x)), 0);
-    expect(layout.y).toBeCloseTo(layout.width < 600 ? layout.cardHeight / 2 + 8 :
-      Math.max(layout.cardHeight / 2 + 8, Math.min(layout.height - layout.cardHeight / 2 - 8, layout.anchor.y)), 0);
+    expect(layout.x).toBeCloseTo(layout.width/2, 0);
+    expect(layout.groupTop).toBeGreaterThanOrEqual(0);
+    expect(layout.outlineTop-layout.groupBottom).toBeCloseTo(layout.compact?12:16, 0);
   }
 }
 async function screenshot(page: Page, name: string) {

@@ -7,6 +7,10 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vue-tsc --noEmit && vite build",
+    "build:ios": "npm run build && node scripts/prepare-ios-web.mjs",
+    "ios:sync": "npm run build:ios && cap sync ios && node scripts/configure-ios.mjs && node scripts/check-ios-resources.mjs",
+    "ios:open": "cap open ios",
+    "test:ios:web": "node scripts/check-ios-web.mjs",
     "preview": "vite preview --host 0.0.0.0",
     "typecheck": "vue-tsc --noEmit",
     "data:prepare": "node scripts/prepare-map-data.mjs",
@@ -15,6 +19,12 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@capacitor/app": "8.1.2",
+    "@capacitor/browser": "8.0.5",
+    "@capacitor/core": "8.5.2",
+    "@capacitor/ios": "8.5.2",
+    "@capacitor/preferences": "8.0.1",
+    "@capacitor/status-bar": "8.0.3",
     "@vuepic/vue-datepicker": "14.0.0",
     "astronomy-engine": "2.1.19",
     "date-fns": "4.4.0",
@@ -22,6 +32,7 @@
     "vue": "^3.5.0"
   },
   "devDependencies": {
+    "@capacitor/cli": "8.5.2",
     "@playwright/test": "^1.55.0",
     "@types/geojson": "^7946.0.16",
     "@types/node": "^22.0.0",

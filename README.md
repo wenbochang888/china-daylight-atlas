@@ -6,7 +6,7 @@
 
 [快速开始](#快速开始) · [功能与操作](#功能与操作) · [数据与计算](#数据与计算) · [参与项目](#参与项目)
 
-![中国昼夜地图：2026 年 10 月 3 日北京时间 18:00 的全国昼夜分布](docs/showcase/desktop.png)
+![中国昼夜地图：2026 年夏至北京时间 12:00，时间居中并单独显示节气](docs/validation-images/map-labels-terms/desktop-final.png)
 
 ## 演示视频
 
@@ -27,16 +27,16 @@
 
 ### 夏至与冬至对比
 
-截图中两张地图都是北京时间 07:00，左边是 2026 年夏至，右边是冬至。每张地图根据各自日期计算太阳位置，主图和南海附图同步更新。
+截图中两张地图都是北京时间 07:00，左边是 2025 年冬至，右边是 2026 年夏至。每张地图根据各自日期计算太阳位置，主图和南海附图同步更新，日期后用中文括号显示各自节气。
 
-![2026 年夏至与冬至在北京时间 07:00 的双日对比](docs/showcase/compare-solstices.png)
+![冬至与夏至在北京时间 07:00 的双日对比及日期后的括号节气](docs/validation-images/map-labels-terms/desktop-chromium-inline-terms.png)
 
 ### 手机布局
 
-手机显示 34 个省级简称（如粤、京、沪），隐藏南海附图并取消其底部留白。点击简称或行政面，详情仍显示完整地区名称；点击面板入口可以选择日期与节气。手机横屏继续采用这一显示方式。
+手机显示 34 个省级简称（如粤、京、沪），优先放在所属省份内；小区域放不下时在附近空白处显示，并用细引线指向对应位置。钓鱼岛在手机和窄地图中显示短名称，宽桌面地图保留完整组名。手机隐藏南海附图并取消其底部留白。点击简称或行政面，详情仍显示完整地区名称；点击面板入口可以选择日期与节气。手机横屏继续采用这一显示方式。
 
 <p align="center">
-  <img src="docs/validation-images/fullscreen-mobile/mobile-chromium-normal-noon.png" width="320" alt="360 像素宽的手机浏览器布局：省级简称、昼夜地图和底部时间轴" />
+  <img src="docs/validation-images/map-labels-terms/mobile-final.png" width="320" alt="390 像素宽的手机浏览器布局：居中时间、独立夏至标签、省级简称和底部时间轴" />
 </p>
 
 An interactive daylight atlas of China. Select a solar term or compare two dates at the same time. Astronomy calculations run in your browser, with no backend or API keys required.
@@ -66,7 +66,9 @@ npm run dev
 
 全国完全处于白天或黑夜时，每秒推进 90 分钟；出现昼夜交界时，每秒推进 8 分钟。双日对比中，只要有一天出现交界，两张图就一起放慢。
 
-全屏日期时间卡片沿用普通地图的位置及三行显示：宽地图位于106°E、49.5°N附近的上方空白处，窄地图放在顶部留白区，并保留相同经度对应的水平位置。
+日期时间卡片在每张地图中水平居中，沿用“日期、北京时间、HH:mm”三行显示。手机、PC、普通模式与全屏模式采用相同规则。所选日期恰逢节气时，在日期后同一行显示括号名称，例如“2026.06.21（夏至）”；手动选日和节气入口均可触发，上一年日期也能识别。双图分别显示各自节气，24:00仍属于所选日期。日期行预留节气宽度，名称出现或消失不会移动地图。下方独立标签已移除，页面上方单图截图保留为此前布局参考。
+
+时间卡片完整位于中国轮廓上方，手机／窄图留12px、宽图留16px，不遮住地图。手机竖屏全屏对比中，日期1保持在上、日期2保持在下，上图向下、下图向上靠近中间分隔线；两图比例一致，各自安全区单独计算，尽量放大地图供省级简称排布。播放／退出按钮在右上角上下排列。普通对比与横屏左右对比沿用原布局。
 
 浏览器不支持原生全屏或拒绝请求时，地图自动铺满浏览器可视区域，浏览器自身的地址栏可能继续显示。手机显示模式为视口宽度不超过 600px，或高度不超过 600px 且主要使用触摸、没有悬停能力；其他宽度小于 600px 的地图也使用简称，宽桌面地图保留完整名称。
 
@@ -99,6 +101,18 @@ npm run preview
 构建结果保存在 `dist/`，默认预览地址是 `http://localhost:4173`。部署时将完整的 `dist/` 放到静态 HTTP 服务上，保留其中的 `maps/` 和 `assets/`，通过 HTTP 或 HTTPS 访问。
 
 项目设置了 `base: './'`，支持部署到仓库子目录等路径。使用 GitHub Pages 时，可以通过 GitHub Actions 构建并发布 `dist/`，无需把构建产物提交到源码分支。
+
+## iPhone 真机与 TestFlight
+
+仓库已接入 Capacitor 8，本地资源包运行现有 Vue 地图，目标为 iPhone、iOS 17 起。此阶段只做真机验证和本人 TestFlight 内部测试。
+
+```sh
+npm run ios:sync        # 构建、准备离线资源并同步 iOS 工程
+npm run ios:open        # 打开 Xcode
+npm run test:ios:web    # App 资源包的手机 WebKit 检查
+```
+
+在 Xcode 的 App → Signing & Capabilities 选择自己的开发团队，连接 iPhone，选中设备并运行。版本与构建号统一由 `ios-app.json` 管理；每次上传前递增 buildNumber，再执行 `ios:sync`。完整操作、TestFlight 说明及真机验收表见 [iOS 开发与测试指南](docs/ios-development.md)，本轮验证见 [iOS 验证记录](docs/validation-ios-app.md)。
 
 ## 数据与计算
 

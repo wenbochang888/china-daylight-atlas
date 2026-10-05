@@ -1,12 +1,62 @@
 # 依赖与构建产物
 node_modules/
 dist/
+dist-ios/
+ios/App/App/public/
+ios/App/App/capacitor.config.json
+ios/App/App/config.xml
+ios/App/CapApp-SPM/Sources/CapApp-SPM/placeholder.swift
+ios/App/CapApp-SPM/symlinks/
+ios/App/build/
+ios/DerivedData/
+ios/**/xcuserdata/
+ios/**/.build/
+ios/**/.swiftpm/
+ios/**/IDEWorkspaceChecks.plist
+*.xcuserstate
+*.ipa
+*.p12
+*.p8
+*.key
+*.pem
+*.mobileprovision
+*.xcarchive/
 .vite/
 
 # 测试输出与覆盖率
 playwright-report/
 test-results/
 coverage/
+
+# 本轮验证产物：仅保留 README 展示与验证文档引用的精选证据
+/docs/validation-images/map-labels-terms/*
+!/docs/validation-images/map-labels-terms/desktop-final.png
+!/docs/validation-images/map-labels-terms/mobile-final.png
+!/docs/validation-images/map-labels-terms/desktop-chromium-inline-terms.png
+!/docs/validation-images/map-labels-terms/mobile-chromium-inline-terms.png
+!/docs/validation-images/map-labels-terms/mobile-webkit-inline-terms.png
+!/docs/validation-images/map-labels-terms/static-production.json
+
+/docs/validation-images/ios-app/*
+!/docs/validation-images/ios-app/simulator-about-dark.png
+!/docs/validation-images/ios-app/simulator-fullscreen-portrait.png
+!/docs/validation-images/ios-app/simulator-updated-portrait.png
+!/docs/validation-images/ios-app/simulator-updated-landscape.png
+!/docs/validation-images/ios-app/simulator-final-dark.png
+!/docs/validation-images/ios-app/package-webkit.json
+!/docs/validation-images/ios-app/website-subdirectory.json
+
+# 手机双图对齐：保留三浏览器尺寸检查、竖屏／安全区截图及最终报告
+/docs/validation-images/comparison-alignment/*
+!/docs/validation-images/comparison-alignment/*-360.png
+!/docs/validation-images/comparison-alignment/*-390.png
+!/docs/validation-images/comparison-alignment/*-430.png
+!/docs/validation-images/comparison-alignment/package-portrait.png
+!/docs/validation-images/comparison-alignment/package-simulated-safe-area.png
+!/docs/validation-images/comparison-alignment/website-portrait.png
+!/docs/validation-images/comparison-alignment/website-simulated-safe-area.png
+!/docs/validation-images/comparison-alignment/package-webkit.json
+!/docs/validation-images/comparison-alignment/website-subdirectory.json
 
 # 日志与系统文件
 *.log
@@ -36,6 +86,7 @@ __pycache__/
 /data/source/counties.json
 
 # 本地设计参考，不影响产品截图
+/output/imagegen/
 /1.MP4
 /2.MP4
 /中国立体地形图.png

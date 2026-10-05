@@ -117,9 +117,11 @@ h1, h2, h3, h4, p, dl { margin: 0; }
 .map-pane { position: relative; min-width: 0; min-height: 430px; overflow: hidden; isolation: isolate; container: map-view / inline-size; background: var(--paper); }
 .comparing .map-pane + .map-pane { border-left: 1px solid var(--line); }
 .map-canvas { position: absolute; inset: 0; }
-.map-day { display: block; font: 14px/1.5 var(--mono); letter-spacing: .02em; margin-bottom: 2px; }
+.map-day { display: block; min-width: 18ch; white-space: nowrap; font: 14px/1.5 var(--mono); letter-spacing: .02em; margin-bottom: 2px; }
 .map-canvas .maplibregl-canvas, .map-canvas .maplibregl-canvas-container { touch-action: pan-y; }
-.map-time { position: absolute; transform: translate(-50%, -50%); pointer-events: none; padding: 8px 14px 10px; border-radius: 9px; background: #173c59; color: #ffd56a; box-shadow: 0 2px 8px #173c591a; text-align: center; }
+.map-info { position: absolute; transform: translate(-50%, -100%); pointer-events: none; text-align: center; }
+.map-time { padding: 8px 14px 10px; border-radius: 9px; background: #173c59; color: #ffd56a; box-shadow: 0 2px 8px #173c591a; text-align: center; }
+.map-day .map-solar-term { display: inline; font: inherit; letter-spacing: inherit; }
 .map-time span { display: block; font-size: 12px; line-height: 1.5; letter-spacing: .12em; }
 .map-time strong { display: block; font: 500 44px/1.1 var(--mono); font-variant-numeric: tabular-nums; letter-spacing: -.05em; }
 .comparing .map-time strong { font-size: 34px; }
@@ -332,13 +334,30 @@ h1, h2, h3, h4, p, dl { margin: 0; }
 .immersive .map-workspace .maps.comparing { grid-template-columns: 1fr 1fr; }
 .immersive .map-workspace .maps .map-pane { min-height: 0; height: 100%; }
 .immersive-pane { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+.immersive-pane[data-comparison-align="bottom"] { padding-bottom: 0; }
+.immersive-pane[data-comparison-align="top"] { padding-top: 0; }
 .immersive .map-canvas { inset: 0; }
 .immersive .map-view-controls { top: calc(12px + env(safe-area-inset-top)); right: calc(12px + env(safe-area-inset-right)); }
-.immersive .map-time { margin-top: env(safe-area-inset-top); margin-left: env(safe-area-inset-left); }
 .immersive .south-sea { bottom: calc(16px + env(safe-area-inset-bottom)); right: calc(18px + env(safe-area-inset-right)); }
 .immersive .map-error { bottom: calc(16px + env(safe-area-inset-bottom)); }
 .immersive .comparing .map-pane + .map-pane { border-left: 1px solid var(--line); border-top: 0; }
 @media (orientation: portrait) {
   .immersive .map-workspace .maps.comparing { grid-template-columns: minmax(0, 1fr); grid-template-rows: repeat(2, minmax(0, 1fr)); }
   .immersive .comparing .map-pane + .map-pane { border-left: 0; border-top: 1px solid var(--line); }
+  .mobile-presentation.immersive .maps.comparing .map-view-controls { flex-direction: column; }
 }
+
+/* The iOS web view does not add insets: CSS owns the safe area once. */
+:root[data-platform="ios"] .atlas-app { padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); }
+:root[data-platform="ios"] .map-workspace { min-height: calc(100dvh - max(8px, env(safe-area-inset-top)) - max(8px, env(safe-area-inset-bottom))); }
+:root[data-platform="ios"] .github-link { width: 44px; padding: 0; }
+:root[data-platform="ios"] .mobile-dialog { max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 24px); width: min(460px, calc(100% - env(safe-area-inset-left) - env(safe-area-inset-right) - 24px)); }
+.about-dialog section { margin-top: 20px; }
+.about-dialog h3 { font-size: 15px; margin-bottom: 8px; }
+.about-dialog p { font-size: 14px; line-height: 1.8; }
+.about-dialog p + p { margin-top: 8px; }
+.about-version, .about-feedback { color: var(--muted); }
+.about-feedback { margin-top: 20px; }
+.about-licenses { margin-top: 16px; font-size: 14px; }
+.about-licenses summary { cursor: pointer; padding: 12px 0; }
+.about-licenses pre { white-space: pre-wrap; overflow-wrap: anywhere; font: 12px/1.7 var(--mono); }

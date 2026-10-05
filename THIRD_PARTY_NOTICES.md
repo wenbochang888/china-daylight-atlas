@@ -29,3 +29,10 @@
 | date-fns | 4.4.0 | MIT | [date-fns/date-fns](https://github.com/date-fns/date-fns) |
 | MapLibre GL JS | 5.24.0 | BSD-3-Clause | [maplibre/maplibre-gl-js](https://github.com/maplibre/maplibre-gl-js) |
 | Astronomy Engine | 2.1.19 | MIT | [cosinekitty/astronomy](https://github.com/cosinekitty/astronomy) |
+| Capacitor core／iOS | 8.5.2 | MIT | [ionic-team/capacitor](https://github.com/ionic-team/capacitor) |
+| Capacitor App | 8.1.2 | MIT | [ionic-team/capacitor-plugins](https://github.com/ionic-team/capacitor-plugins) |
+| Capacitor Browser | 8.0.5 | MIT | 同上 |
+| Capacitor Preferences | 8.0.1 | MIT | 同上 |
+| Capacitor Status Bar | 8.0.3 | MIT | 同上 |
+
+iOS 资源包包含 `licenses.txt`，由构建脚本汇总自有许可、本文及锁定生产依赖中提供的许可证文件；可在 App 的“关于”入口离线查看。原生工程采用 Swift Package Manager，框架依赖锁定为 Capacitor 8.5.2。

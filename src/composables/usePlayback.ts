@@ -2,7 +2,7 @@ import { onBeforeUnmount, ref, watch, type Ref } from 'vue';
 import { advancePlayback } from '../domain/national-playback';
 import type { PlaybackMultiplier, PlaybackSegment } from '../domain/types';
 
-export function usePlayback(minute: Ref<number>, segments: Readonly<Ref<PlaybackSegment[]>>, multiplier: Readonly<Ref<PlaybackMultiplier>>) {
+export function usePlayback(minute: Ref<number>, segments: Readonly<Ref<PlaybackSegment[]>>, multiplier: Readonly<Ref<PlaybackMultiplier>>, active: Readonly<Ref<boolean>> = ref(true)) {
   const playing = ref(false);
   let frame = 0, previous: number | null = null;
   function pause() { playing.value = false; cancelAnimationFrame(frame); previous = null; }
@@ -18,8 +18,9 @@ export function usePlayback(minute: Ref<number>, segments: Readonly<Ref<Playback
   }
   // Settle time under the old rate before applying a new browsing multiplier.
   watch(multiplier, (_value, old) => { if (playing.value) advance(performance.now(), old); }, { flush: 'sync' });
+  watch(active, value => { if (!value) pause(); }, { flush: 'sync' });
   function start() {
-    if (playing.value || !segments.value.length || document.hidden) return;
+    if (playing.value || !segments.value.length || document.hidden || !active.value) return;
     if (minute.value >= 1440) minute.value = 0;
     playing.value = true; previous = performance.now(); frame = requestAnimationFrame(tick);
   }

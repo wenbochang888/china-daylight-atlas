@@ -27,7 +27,7 @@ test('观测栏／手机面板、节气自动播放、普通换日保留时分�
   await datePanel(page);await expect(page.locator('.term-button')).toHaveCount(24);
   const term=page.locator('.term-button').filter({hasText:'夏至'});const termDate=await term.locator('small').innerText();
   await term.click();await expect(page.getByRole('button',{name:'暂停播放',exact:true})).toBeVisible();
-  await expect(page.locator('.map-day')).toHaveText(termDate.replaceAll('-','.'));
+  await expect(page.locator('.map-day')).toHaveText(`${termDate.replaceAll('-','.')}（夏至）`);
   await page.waitForTimeout(400);await page.getByRole('button',{name:'暂停播放',exact:true}).click();
   const clock=await page.getByTestId('clock').innerText();expect(clock).not.toBe('00:00');
   await datePanel(page);const input=page.getByLabel('日期 1',{exact:true});const max=(await input.getAttribute('data-max'))!;
@@ -100,7 +100,7 @@ test('快速节气选择以最后一次为准，后台暂停后不自行恢复',
   await page.locator('.term-button').filter({hasText:'夏至'}).click();
   await page.locator('.term-button').filter({hasText:'冬至'}).click();
   const date=await page.locator('.term-button').filter({hasText:'冬至'}).locator('small').innerText();
-  await expect(page.locator('.map-day').first()).toHaveText(date.replaceAll('-','.'));
+  await expect(page.locator('.map-day').first()).toHaveText(`${date.replaceAll('-','.')}（冬至）`);
   await expect(page.getByRole('button',{name:'暂停播放',exact:true})).toBeVisible();
   await page.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,value:true});document.dispatchEvent(new Event('visibilitychange'));});
   await expect(page.getByRole('button',{name:'开始播放',exact:true})).toBeVisible();

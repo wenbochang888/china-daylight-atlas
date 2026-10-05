@@ -1,0 +1,294 @@
+{
+  "url": "http://127.0.0.1:4174/atlas/",
+  "results": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "deviceTimezone": "America/New_York",
+      "date": "2026-10-05",
+      "time": "03:05",
+      "overflow": false,
+      "canvases": [
+        {
+          "width": 541,
+          "height": 380
+        },
+        {
+          "width": 540,
+          "height": 380
+        }
+      ],
+      "externalRequests": 0,
+      "music": {
+        "source": "http://127.0.0.1:4174/atlas/assets/%E9%92%A2%E7%90%B4%E6%9B%B2-Cfe8mGz7.mp3",
+        "duration": 265,
+        "loop": true,
+        "rate": 1
+      },
+      "fullscreen": {
+        "mode": "native",
+        "width": 1440,
+        "height": 900,
+        "viewportWidth": 1440,
+        "viewportHeight": 900,
+        "columns": 2,
+        "overflow": false
+      }
+    },
+    {
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "deviceTimezone": "America/New_York",
+      "date": "2026-10-05",
+      "time": "02:12",
+      "overflow": false,
+      "canvases": [
+        {
+          "width": 734,
+          "height": 440
+        },
+        {
+          "width": 734,
+          "height": 439
+        }
+      ],
+      "externalRequests": 0,
+      "music": {
+        "source": "http://127.0.0.1:4174/atlas/assets/%E9%92%A2%E7%90%B4%E6%9B%B2-Cfe8mGz7.mp3",
+        "duration": 265,
+        "loop": true,
+        "rate": 1
+      },
+      "fullscreen": {
+        "mode": "native",
+        "width": 768,
+        "height": 1024,
+        "viewportWidth": 768,
+        "viewportHeight": 1024,
+        "columns": 1,
+        "overflow": false
+      }
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "deviceTimezone": "America/New_York",
+      "date": "2026-10-05",
+      "time": "01:27",
+      "overflow": false,
+      "canvases": [
+        {
+          "width": 810,
+          "height": 420
+        },
+        {
+          "width": 810,
+          "height": 419
+        }
+      ],
+      "externalRequests": 0,
+      "music": {
+        "source": "http://127.0.0.1:4174/atlas/assets/%E9%92%A2%E7%90%B4%E6%9B%B2-Cfe8mGz7.mp3",
+        "duration": 265,
+        "loop": true,
+        "rate": 1
+      },
+      "fullscreen": {
+        "mode": "native",
+        "width": 844,
+        "height": 390,
+        "viewportWidth": 844,
+        "viewportHeight": 390,
+        "columns": 2,
+        "overflow": false
+      }
+    },
+    {
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "deviceTimezone": "America/New_York",
+      "date": "2026-10-05",
+      "time": "02:34",
+      "overflow": false,
+      "canvases": [
+        {
+          "width": 342,
+          "height": 420
+        },
+        {
+          "width": 342,
+          "height": 419
+        }
+      ],
+      "externalRequests": 0,
+      "music": {
+        "source": "http://127.0.0.1:4174/atlas/assets/%E9%92%A2%E7%90%B4%E6%9B%B2-Cfe8mGz7.mp3",
+        "duration": 265,
+        "loop": true,
+        "rate": 1
+      },
+      "fullscreen": {
+        "mode": "native",
+        "width": 360,
+        "height": 800,
+        "viewportWidth": 360,
+        "viewportHeight": 800,
+        "columns": 1,
+        "overflow": false
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceTimezone": "America/New_York",
+      "date": "2026-10-05",
+      "time": "02:31",
+      "overflow": false,
+      "canvases": [
+        {
+          "width": 372,
+          "height": 463
+        },
+        {
+          "width": 372,
+          "height": 462
+        }
+      ],
+      "externalRequests": 0,
+      "music": {
+        "source": "http://127.0.0.1:4174/atlas/assets/%E9%92%A2%E7%90%B4%E6%9B%B2-Cfe8mGz7.mp3",
+        "duration": 265,
+        "loop": true,
+        "rate": 1
+      },
+      "fullscreen": {
+        "mode": "native",
+        "width": 390,
+        "height": 844,
+        "viewportWidth": 390,
+        "viewportHeight": 844,
+        "columns": 1,
+        "overflow": false
+      }
+    },
+    {
+      "viewport": {
+        "width": 600,
+        "height": 900
+      },
+      "deviceTimezone": "America/New_York",
+      "date": "2026-10-05",
+      "time": "02:28",
+      "overflow": false,
+      "canvases": [
+        {
+          "width": 582,
+          "height": 519
+        },
+        {
+          "width": 582,
+          "height": 518
+        }
+      ],
+      "externalRequests": 0,
+      "music": {
+        "source": "http://127.0.0.1:4174/atlas/assets/%E9%92%A2%E7%90%B4%E6%9B%B2-Cfe8mGz7.mp3",
+        "duration": 265,
+        "loop": true,
+        "rate": 1
+      },
+      "fullscreen": {
+        "mode": "native",
+        "width": 600,
+        "height": 900,
+        "viewportWidth": 600,
+        "viewportHeight": 900,
+        "columns": 1,
+        "overflow": false
+      }
+    },
+    {
+      "viewport": {
+        "width": 601,
+        "height": 900
+      },
+      "deviceTimezone": "America/New_York",
+      "date": "2026-10-05",
+      "time": "00:49",
+      "overflow": false,
+      "canvases": [
+        {
+          "width": 567,
+          "height": 380
+        },
+        {
+          "width": 567,
+          "height": 379
+        }
+      ],
+      "externalRequests": 0,
+      "music": {
+        "source": "http://127.0.0.1:4174/atlas/assets/%E9%92%A2%E7%90%B4%E6%9B%B2-Cfe8mGz7.mp3",
+        "duration": 265,
+        "loop": true,
+        "rate": 1
+      },
+      "fullscreen": {
+        "mode": "native",
+        "width": 601,
+        "height": 900,
+        "viewportWidth": 601,
+        "viewportHeight": 900,
+        "columns": 1,
+        "overflow": false
+      }
+    },
+    {
+      "viewport": {
+        "width": 599,
+        "height": 900
+      },
+      "deviceTimezone": "America/New_York",
+      "date": "2026-10-05",
+      "time": "02:28",
+      "overflow": false,
+      "canvases": [
+        {
+          "width": 581,
+          "height": 519
+        },
+        {
+          "width": 581,
+          "height": 518
+        }
+      ],
+      "externalRequests": 0,
+      "music": {
+        "source": "http://127.0.0.1:4174/atlas/assets/%E9%92%A2%E7%90%B4%E6%9B%B2-Cfe8mGz7.mp3",
+        "duration": 265,
+        "loop": true,
+        "rate": 1
+      },
+      "fullscreen": {
+        "mode": "native",
+        "width": 599,
+        "height": 900,
+        "viewportWidth": 599,
+        "viewportHeight": 900,
+        "columns": 1,
+        "overflow": false
+      }
+    }
+  ],
+  "failures": []
+}

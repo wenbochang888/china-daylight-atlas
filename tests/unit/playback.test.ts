@@ -17,15 +17,22 @@ function playback() {
   vi.stubGlobal('requestAnimationFrame',(callback:FrameRequestCallback)=>{frames.set(++id,callback);return id;});
   vi.stubGlobal('cancelAnimationFrame',(id:number)=>frames.delete(id));
   vi.spyOn(performance,'now').mockImplementation(()=>now);
-  const minute=ref(0), multiplier=ref<PlaybackMultiplier>(1);
+  const minute=ref(0), multiplier=ref<PlaybackMultiplier>(1), active=ref(true);
   const segments=ref<PlaybackSegment[]>([{startMinute:0,endMinute:300,speed:90},{startMinute:300,endMinute:600,speed:8},{startMinute:600,endMinute:1440,speed:90}]);
   let controls!:ReturnType<typeof usePlayback>;
-  app=renderer.createApp({setup(){controls=usePlayback(minute,segments,multiplier);return()=>null;}});app.mount({});
+  app=renderer.createApp({setup(){controls=usePlayback(minute,segments,multiplier,active);return()=>null;}});app.mount({});
   const time=(value:number)=>{now=value;};
   const frame=(value:number)=>{time(value);const entry=frames.entries().next().value!;frames.delete(entry[0]);entry[1](now);};
-  return {minute,multiplier,controls,frames,doc,time,frame};
+  return {minute,multiplier,active,controls,frames,doc,time,frame};
 }
 describe('播放生命周期与倍率',()=>{
+  it('原生失活同步暂停，拒绝后台播放，回来不自动恢复',()=>{
+    const p=playback();p.controls.start();p.frame(1000);p.active.value=false;
+    expect(p.controls.playing.value).toBe(false);expect(p.frames.size).toBe(0);
+    p.controls.start();expect(p.frames.size).toBe(0);
+    p.active.value=true;expect(p.controls.playing.value).toBe(false);
+    p.time(9000);p.controls.start();p.frame(10000);expect(p.minute.value).toBe(180);
+  });
   it('时刻转换为从零点实际播放耗时，跨速度段并包含24:00',()=>{
     const segments:PlaybackSegment[]=[{startMinute:0,endMinute:300,speed:90},{startMinute:300,endMinute:600,speed:8},{startMinute:600,endMinute:1440,speed:90}];
     expect(playbackElapsedSeconds(0,segments)).toBe(0);

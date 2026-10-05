@@ -7,9 +7,11 @@ import MapClock from './components/MapClock.vue';
 import TimeScrubber from './components/TimeScrubber.vue';
 import UiIcon from './components/UiIcon.vue';
 import HeaderActions from './components/HeaderActions.vue';
+import AboutDialog from './components/AboutDialog.vue';
+import { listenAppActivity, nativeIos, preferenceKeys, readPreference, setSystemAppearance, writePreference } from './platform/runtime';
 import { beijingDate, clampDate, clampMinute, dateLimits, previousDate, toInstant } from './domain/beijing-time';
 import { solarVector } from './domain/solar';
-import { solarTermOptions } from './domain/solar-terms';
+import { solarTermForDate, solarTermOptions } from './domain/solar-terms';
 import { combinePlaybackSegments, nationalPlaybackSegments, playbackElapsedSeconds, prepareNationalGeometry, type NationalGeometry } from './domain/national-playback';
 import { nationalMap } from './data/national-map';
 import { usePlayback } from './composables/usePlayback';
@@ -19,15 +21,15 @@ import pianoUrl from './mp3/钢琴曲.mp3';
 import type { Camera, PlaybackMultiplier, PlaybackSegment, Region, SolarTermOption } from './domain/types';
 
 const now = new Date(), today = ref(beijingDate(now)), limits = ref(dateLimits(now)), dates = ref([today.value]), minute = ref(0);
-const musicPreferenceKey = 'china-daylight-atlas:music-enabled';
-function preferredMusic() { try { return localStorage.getItem(musicPreferenceKey) !== 'false'; } catch { return true; } }
+const musicPreferenceKey = preferenceKeys.music;
+function preferredMusic() { return readPreference(musicPreferenceKey) !== 'false'; }
 const musicEnabled = ref(preferredMusic());
 function toggleMusic() {
   musicEnabled.value = !musicEnabled.value;
-  try { localStorage.setItem(musicPreferenceKey, String(musicEnabled.value)); } catch { /* The in-page preference remains usable. */ }
+  writePreference(musicPreferenceKey, String(musicEnabled.value));
 }
-const themePreferenceKey = 'china-daylight-atlas:theme';
-function preferredDarkMode() { try { return localStorage.getItem(themePreferenceKey) === 'dark'; } catch { return false; } }
+const themePreferenceKey = preferenceKeys.theme;
+function preferredDarkMode() { return readPreference(themePreferenceKey) === 'dark'; }
 const darkMode = ref(preferredDarkMode());
 watch(darkMode, value => {
   document.documentElement.dataset.theme = value ? 'dark' : 'light';
@@ -35,30 +37,34 @@ watch(darkMode, value => {
 }, { immediate: true });
 function toggleTheme() {
   darkMode.value = !darkMode.value;
-  try { localStorage.setItem(themePreferenceKey, darkMode.value ? 'dark' : 'light'); } catch { /* The in-page preference remains usable. */ }
+  writePreference(themePreferenceKey, darkMode.value ? 'dark' : 'light');
 }
 const termYear = computed(() => Number(today.value.slice(0,4)));
 const regions = shallowRef<Region[]>([]), shape = shallowRef<NationalGeometry | null>(null);
 const segments = shallowRef<PlaybackSegment[]>([]), terms = shallowRef<SolarTermOption[]>([]);
+const dateTerms = shallowRef<Array<string | null>>([]);
 const index = computed(() => new Map(regions.value.map(region => [region.id, region])));
 const selectedId = ref(''), selected = computed(() => index.value.get(selectedId.value) ?? null);
 const camera = ref<Camera | null>(null), target = ref(0);
 const compare = computed(() => dates.value.length === 2);
 const vectors = computed(() => dates.value.map(date => solarVector(toInstant(date, minute.value))));
 const playbackMultiplier = computed<PlaybackMultiplier>(() => 1);
-const { playing, pause, start, toggle } = usePlayback(minute, segments, playbackMultiplier);
+const appActive = ref(true);
+const { playing, pause, start, toggle } = usePlayback(minute, segments, playbackMultiplier, appActive);
 const playbackAudio = shallowRef<HTMLAudioElement>();
 const playbackSeconds = computed(() => playbackElapsedSeconds(minute.value, segments.value, playbackMultiplier.value));
 const { error: audioError, retry: retryAudio } = usePlaybackAudio(playbackAudio, playing, playbackSeconds, musicEnabled);
 const dataError = ref(''), phaseError = ref(''), termError = ref(''), notice = ref('');
 const dataLoading = ref(true), pendingPlay = ref(false);
 const mapStates = ref<Array<'loading' | 'ready' | 'error'>>(['loading']);
-const ready = computed(() => !dataLoading.value && !dataError.value && !phaseError.value && !!segments.value.length && dates.value.every((_, i) => mapStates.value[i] === 'ready'));
+const ready = computed(() => appActive.value && !dataLoading.value && !dataError.value && !phaseError.value && !!segments.value.length && dates.value.every((_, i) => mapStates.value[i] === 'ready'));
 const detailsOpen = ref(false);
 const mapWorkspace = ref<HTMLElement>(), mapWidth = ref(920);
 const { mode: fullscreenMode, active: immersive, pending: fullscreenPending, enter: enterFullscreen, exit: exitFullscreen } = useMapFullscreen(mapWorkspace);
+watch([darkMode, immersive], ([dark, fullscreen]) => setSystemAppearance(dark, fullscreen), { immediate: true });
+const about = ref<InstanceType<typeof AboutDialog>>();
 const mobileMedia = window.matchMedia('(max-width: 600px), (max-height: 600px) and (hover: none) and (pointer: coarse)');
-const mobilePresentation = ref(mobileMedia.matches), mobileMapHeight = ref(420);
+const mobilePresentation = ref(nativeIos || mobileMedia.matches), mobileMapHeight = ref(420);
 const mapsReady = computed(() => !dataLoading.value && !dataError.value && dates.value.every((_,i) => mapStates.value[i] === 'ready'));
 const timeline = ref<HTMLElement>(), timelineBounds = ref({ left: 0, width: 0 }), timelineHeight = ref(84);
 const stackedComparison = computed(() => compare.value && mapWidth.value < 920);
@@ -77,9 +83,13 @@ function prepareDates() {
 }
 function prepareTerms() {
   termError.value = '';
-  try { terms.value = solarTermOptions({ min: `${termYear.value}-01-01`, max: `${termYear.value}-12-31` }); }
-  catch { termError.value = '节气日期计算失败，请重试。'; }
+  try {
+    terms.value = solarTermOptions({ min: `${termYear.value}-01-01`, max: `${termYear.value}-12-31` });
+    dateTerms.value = dates.value.map(solarTermForDate);
+  }
+  catch { dateTerms.value = []; termError.value = '节气日期计算失败，请重试。'; }
 }
+watch(() => [...dates.value], prepareTerms);
 function setDate(i: number, value: string) {
   cancelPlayback(); const normalized = clampDate(value, limits.value);
   if (value !== normalized) notice.value = '日期已调整到两年观测范围内的有效日期。';
@@ -198,10 +208,16 @@ function measureTimeline() {
   const overhead = [...mapWorkspace.value.querySelectorAll<HTMLElement>('.map-toolbar,.mobile-toolbar,.map-footer,.notice,.panel-error')].reduce((height, element) => height + element.offsetHeight, 0);
   mobileMapHeight.value = Math.max(420, window.innerHeight - overhead - timelineHeight.value - parseFloat(appStyle.paddingTop) - parseFloat(appStyle.paddingBottom) - 2);
 }
-function mobilePresentationChange() { mobilePresentation.value = mobileMedia.matches; void nextTick(measureTimeline); }
+function mobilePresentationChange() { mobilePresentation.value = nativeIos || mobileMedia.matches; void nextTick(measureTimeline); }
 watch(immersive, async value => { if (value) panel.value = null; await nextTick(); measureTimeline(); });
 function layoutChange() { compact.value = media.matches; panel.value = null; void nextTick(measureTimeline); }
+let removeAppActivity = () => {};
 onMounted(() => {
+  removeAppActivity = listenAppActivity(active => {
+    appActive.value = active;
+    if (!active) cancelPlayback();
+    else { refreshLimits(); setSystemAppearance(darkMode.value, immersive.value); }
+  });
   mobileMedia.addEventListener('change', mobilePresentationChange);
   media = window.matchMedia('(max-width: 1099px)'); layoutChange(); media.addEventListener('change', layoutChange);
   layoutObserver = new ResizeObserver(entries => {
@@ -216,6 +232,7 @@ onMounted(() => {
   document.addEventListener('visibilitychange', refreshLimits);
 });
 onBeforeUnmount(() => {
+  removeAppActivity(); setSystemAppearance(darkMode.value, false);
   layoutObserver?.disconnect(); mobileMedia.removeEventListener('change', mobilePresentationChange);
   ++initialization; clearInitialCalculations(); clearInterval(timer); media?.removeEventListener('change', layoutChange);
   document.removeEventListener('visibilitychange', refreshLimits);
@@ -232,7 +249,7 @@ onBeforeUnmount(() => {
             <span class="brand-symbol" aria-hidden="true"><UiIcon name="sun" /></span>
             <div class="map-title"><span class="eyebrow">日光观测台</span><h1>中国昼夜地图</h1></div>
           </div>
-          <HeaderActions v-if="compact" :dark="darkMode" @theme="toggleTheme" />
+          <HeaderActions v-if="compact" :dark="darkMode" @theme="toggleTheme" @about="about?.open($event)" />
           <MapClock :minute="minute" :playing="playing" :ready="ready" :music-enabled="musicEnabled" @toggle="togglePlayback" @music="toggleMusic" />
         </header>
         <div v-if="compact" class="mobile-toolbar">
@@ -243,7 +260,7 @@ onBeforeUnmount(() => {
         <div v-if="musicEnabled && audioError" class="notice audio-notice" role="status"><span>{{audioError}}</span><button :disabled="!playing" @click="retryAudio">重试音乐</button></div>
         <div v-if="dataError" class="panel-error" role="alert">{{dataError}}<button @click="initialize">重试全国数据</button></div>
         <div class="maps" :class="{comparing:compare}">
-          <MapPane v-for="(date,i) in dates" :key="i" :number="i" :date="date" :minute="minute" :vector="vectors[i]" :selected="selected" :camera="camera" :show-inset="!mobilePresentation" :compact-labels="mobilePresentation" :immersive="immersive" @select="selectFromMap" @camera="camera=$event" @status="onStatus(i,$event)" />
+          <MapPane v-for="(date,i) in dates" :key="i" :number="i" :date="date" :solar-term="dateTerms[i] ?? null" :minute="minute" :vector="vectors[i]" :selected="selected" :camera="camera" :show-inset="!mobilePresentation" :compact-labels="mobilePresentation" :immersive="immersive" :comparison-align="immersive && compare && mobilePresentation ? (i===0?'bottom':'top') : 'center'" @select="selectFromMap" @camera="camera=$event" @status="onStatus(i,$event)" />
           <div class="map-view-controls" aria-label="地图显示操作">
             <button v-if="immersive" class="map-play-button" :disabled="!ready" :aria-label="playing?'暂停播放':'开始播放'" :aria-pressed="playing" @click="togglePlayback"><UiIcon :name="playing?'pause':'play'" /></button>
             <button v-if="immersive" aria-label="退出全屏" title="退出全屏" @click="exitFullscreen"><UiIcon name="close" /></button>
@@ -258,7 +275,7 @@ onBeforeUnmount(() => {
         <div class="timeline-space" aria-hidden="true" :style="{height:`${timelineHeight}px`}"></div>
       </section>
       <aside v-if="!compact" class="observation-rail" :inert="immersive" aria-label="日期与地区观测">
-        <div class="rail-heading"><h2>观测记录</h2><HeaderActions :dark="darkMode" @theme="toggleTheme" /></div>
+        <div class="rail-heading"><h2>观测记录</h2><HeaderActions :dark="darkMode" @theme="toggleTheme" @about="about?.open($event)" /></div>
         <SolarTermPanel :dates="dates" :min="limits.min" :max="limits.max" :today="today" :year="termYear" :compare="compare" :target="target" :terms="terms" :disabled="dataLoading||!!dataError||!segments.length" :error="phaseError||termError" @date="setDate" @compare="toggleCompare" @target="target=$event" @term="selectTerm" @retry="retryCalculations">
           <Transition name="details" mode="out-in" @after-enter="restoreDetailsFocus">
             <section v-if="selected && detailsOpen" class="details-card" key="open">
@@ -281,5 +298,6 @@ onBeforeUnmount(() => {
         <SolarTermPanel v-else :popup-host="calendarHost" :dates="dates" :min="limits.min" :max="limits.max" :today="today" :year="termYear" :compare="compare" :target="target" :terms="terms" :disabled="dataLoading||!!dataError||!segments.length" :error="phaseError||termError" @date="setDate" @compare="toggleCompare" @target="target=$event" @term="selectTerm" @retry="retryCalculations" />
       </template>
     </dialog>
+    <AboutDialog v-if="nativeIos" ref="about" />
   </main>
 </template>

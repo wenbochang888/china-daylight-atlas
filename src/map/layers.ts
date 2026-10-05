@@ -2,8 +2,12 @@ import type { FeatureCollection } from 'geojson';
 import type { GeoJSONSource, Map as LibreMap, StyleSpecification } from 'maplibre-gl';
 import { SolarLayer } from './solar-layer';
 import { mapColors } from './colors';
+import { boxInsidePolygon, boxOverlapsPolygon, insidePolygon, provinceLabelPolygons, segmentTouchesBox, type Box, type Point } from './label-geometry';
 
 export const emptyCollection: FeatureCollection = { type: 'FeatureCollection', features: [] };
+const nearbyOffsets: [number,number][]=[];
+for (let x=-192;x<=192;x+=4) for (let y=-192;y<=192;y+=4) nearbyOffsets.push([x,y]);
+nearbyOffsets.sort((a,b)=>a[0]*a[0]+a[1]*a[1]-b[0]*b[0]-b[1]*b[1]);
 export const mapStyle: StyleSpecification = {
   version: 8,
   sources: {},
@@ -60,7 +64,7 @@ export function installLayers(map: LibreMap, provinces: FeatureCollection, bound
     paint:{'text-color':mapColors.night,'text-halo-color':'#fff','text-halo-width':1.2} });
   return solar;
 }
-export function resizeProvinceLabels(map: LibreMap, labels: FeatureCollection, compactLabels = false) {
+export function resizeProvinceLabels(map: LibreMap, labels: FeatureCollection, compactLabels = false, provinces: FeatureCollection = emptyCollection, islandLabels: FeatureCollection = emptyCollection) {
   const compact = compactLabels || map.getContainer().clientWidth < 600;
   map.setLayoutProperty('labels-province', 'text-size', 12);
   map.setLayoutProperty('labels-province', 'text-field', ['get', compact ? 'shortName' : 'name']);
@@ -70,55 +74,98 @@ export function resizeProvinceLabels(map: LibreMap, labels: FeatureCollection, c
   for (const layer of ['labels-province','key-province-labels','taiwan-label']) {
     map.setLayoutProperty(layer, 'text-anchor', 'center');
   }
-  // Choose nearby free text positions only when the fixed camera or layout changes.
-  // All geographical anchors remain intact, and no province is hidden to make room.
   const container = map.getContainer(), bounds = container.getBoundingClientRect();
-  type Box = { left: number; top: number; right: number; bottom: number };
   const occupied: Box[] = [];
-  const overlays = [...container.parentElement?.querySelectorAll('.map-time,.south-sea') ?? [],
+  const overlays = [...container.parentElement?.querySelectorAll('.map-info,.south-sea') ?? [],
     ...container.closest('.maps')?.querySelectorAll('.map-view-controls') ?? []];
   for (const element of overlays) {
     const rect = element.getBoundingClientRect();
     if (rect.width && rect.height) occupied.push({ left:rect.left-bounds.left-4, top:rect.top-bounds.top-4, right:rect.right-bounds.left+4, bottom:rect.bottom-bounds.top+4 });
   }
-  for (const feature of map.querySourceFeatures('islandLabels')) {
-    if (feature.properties.kind !== 'diaoyu-group' || feature.geometry.type !== 'Point') continue;
-    const point = map.project(feature.geometry.coordinates.slice(0,2) as [number,number]);
-    occupied.push({left:point.x-82,top:point.y-38,right:point.x+2,bottom:point.y-6});
-  }
-  const preferred: Record<string,[number,number]> = {
-    '156110000':[-2,-1.4], '156120000':[2,0.8], '156310000':[2.2,0.7], '156500000':[-1.8,1],
-    '156810000':[2,1.7], '156820000':[-2,0.4], '156460000':[-1.8,1], '156710000':[-2,1],
-  };
-  const candidates: [number,number][] = [];
-  for (let x=-144;x<=144;x+=4) for (let y=-144;y<=144;y+=4) candidates.push([x,y]);
-  candidates.sort((a,b)=>a[0]*a[0]+a[1]*a[1]-b[0]*b[0]-b[1]*b[1]);
+  const shapes=provinceLabelPolygons(provinces);
+  const projected=new Map([...shapes].map(([id,shape])=>[id,{
+    rings:shape.rings.map(ring=>ring.map(p=>map.project(p.slice(0,2) as [number,number]))),
+    candidates:shape.candidates.map(p=>map.project(p)),
+  }]));
+  const smallIds=new Set(['156110000','156120000','156310000','156500000','156810000','156820000','156460000','156710000']);
+  const candidates = nearbyOffsets;
   const offsets = new Map<string,[number,number]>();
-  const positions = new Map<string,{x:number;y:number}>();
+  const positions = new Map<string,{x:number;y:number;inside:boolean;box:Box}>();
   const guides: FeatureCollection = {type:'FeatureCollection',features:[]};
-  const features = [...labels.features].sort((a,b)=>Number(!!preferred[String(b.properties?.id)])-Number(!!preferred[String(a.properties?.id)]));
-  for (const feature of features) {
-    if (feature.geometry.type !== 'Point') continue;
-    const id = String(feature.properties?.id), small = !!preferred[id], size = compact ? 12 : small ? 11 : 12;
+  const lines: {a:Point;b:Point}[]=[];
+  const available=(box:Box)=>box.left>=6 && box.top>=6 && box.right<=container.clientWidth-6 && box.bottom<=container.clientHeight-6 &&
+    !occupied.some(other=>box.left<other.right && box.right>other.left && box.top<other.bottom && box.bottom>other.top) &&
+    !lines.some(line=>segmentTouchesBox(line.a,line.b,box));
+  const items=labels.features.flatMap(feature=>{
+    if (feature.geometry.type!=='Point') return [];
+    const id=String(feature.properties?.id),size=compact?12:smallIds.has(id)?11:12;
     const name = compact ? String(feature.properties?.shortName) : id === '156810000' ? '香港' : id === '156820000' ? '澳门' : String(feature.properties?.name);
-    const lines = name.split('\n'), halfWidth = Math.max(...lines.map(line=>line.length))*size/2+3, halfHeight = lines.length*size*1.2/2+3;
-    const anchor = map.project(feature.geometry.coordinates.slice(0,2) as [number,number]), bias = preferred[id] ?? [0,0];
-    let offset: [number,number] = bias;
-    for (const [dx,dy] of candidates) {
-      const x = anchor.x+bias[0]*size+dx, y = anchor.y+bias[1]*size+dy;
-      const box = {left:x-halfWidth,top:y-halfHeight,right:x+halfWidth,bottom:y+halfHeight};
-      if (box.left<6 || box.top<6 || box.right>container.clientWidth-6 || box.bottom>container.clientHeight-6) continue;
-      if (occupied.some(other=>box.left<other.right && box.right>other.left && box.top<other.bottom && box.bottom>other.top)) continue;
-      offset = [bias[0]+dx/size,bias[1]+dy/size]; occupied.push(box); break;
+    const textLines=name.split('\n');
+    return [{id,size,anchor:map.project(feature.geometry.coordinates.slice(0,2) as [number,number]),
+      coordinates:feature.geometry.coordinates.slice(0,2),halfWidth:Math.max(...textLines.map(line=>line.length))*size/2+2,halfHeight:textLines.length*size*1.2/2+2}];
+  }).sort((a,b)=>(projected.get(a.id)?.candidates.length??0)-(projected.get(b.id)?.candidates.length??0)||a.id.localeCompare(b.id));
+  type Item=typeof items[number];
+  const boxAt=(item:Item,p:Point):Box=>({left:p.x-item.halfWidth,top:p.y-item.halfHeight,right:p.x+item.halfWidth,bottom:p.y+item.halfHeight});
+  function place(item:Item,p:Point,inside:boolean) {
+    const box=boxAt(item,p); occupied.push(box);
+    positions.set(item.id,{...p,inside,box}); offsets.set(item.id,[(p.x-item.anchor.x)/item.size,(p.y-item.anchor.y)/item.size]);
+    if (!inside) {
+      const dx=p.x-item.anchor.x,dy=p.y-item.anchor.y,edge=Math.min(item.halfWidth/Math.abs(dx),item.halfHeight/Math.abs(dy));
+      if (edge<1) {
+        const b={x:p.x-dx*edge,y:p.y-dy*edge}; lines.push({a:item.anchor,b});
+        guides.features.push({type:'Feature',properties:{id:item.id},geometry:{type:'LineString',coordinates:[item.coordinates,map.unproject([b.x,b.y]).toArray()]}});
+      }
     }
-    offsets.set(id,offset);
-    const x = anchor.x+offset[0]*size, y = anchor.y+offset[1]*size;
-    positions.set(id,{x,y});
-    if (Math.hypot(x-anchor.x,y-anchor.y)>size*2) {
-      const edge = Math.min(halfWidth/Math.abs(x-anchor.x),halfHeight/Math.abs(y-anchor.y));
-      if (edge<1) guides.features.push({type:'Feature',properties:{id},geometry:{type:'LineString',
-        coordinates:[feature.geometry.coordinates.slice(0,2),map.unproject([x-(x-anchor.x)*edge,y-(y-anchor.y)*edge]).toArray()]}});
+  }
+  // Reserve internal placements for all provinces before small regions use external space.
+  for (const item of items) {
+    const shape=projected.get(item.id); if (!shape) continue;
+    const choices=[item.anchor,...shape.candidates].sort((a,b)=>Math.hypot(a.x-item.anchor.x,a.y-item.anchor.y)-Math.hypot(b.x-item.anchor.x,b.y-item.anchor.y));
+    const point=choices.find(p=>{
+      const box=boxAt(item,p);
+      // Collision padding is spacing, not printed ink. Do not force that empty margin inside land.
+      const ink={left:box.left+1.8,right:box.right-1.8,top:p.y-item.size/2-1.2,bottom:p.y+item.size/2+1.2};
+      return available(box)&&boxInsidePolygon(ink,shape.rings);
+    });
+    if (point) place(item,point,true);
+  }
+  // A narrow province may not fit the entire glyph or full name. Keep its text centre
+  // in its own land before resorting to a callout, with text-to-text spacing intact.
+  for (const item of items) {
+    if (positions.has(item.id)) continue;
+    const shape=projected.get(item.id); if (!shape) continue;
+    const xs=shape.rings[0].map(p=>p.x),ys=shape.rings[0].map(p=>p.y);
+    const width=Math.max(...xs)-Math.min(...xs),height=Math.max(...ys)-Math.min(...ys);
+    if (width*height<item.size*item.size || ((!compact || smallIds.has(item.id)) && (width<item.size || height<item.size))) continue;
+    const choices=[item.anchor,...shape.candidates].sort((a,b)=>Math.hypot(a.x-item.anchor.x,a.y-item.anchor.y)-Math.hypot(b.x-item.anchor.x,b.y-item.anchor.y));
+    const point=choices.find(p=>available(boxAt(item,p)) && insidePolygon(p,shape.rings));
+    if (point) place(item,point,true);
+  }
+  for (const item of items) {
+    if (positions.has(item.id)) continue;
+    const point=candidates.map(([dx,dy])=>({x:item.anchor.x+dx,y:item.anchor.y+dy})).find(p=>{
+      const box=boxAt(item,p);
+      return available(box) && ![...projected.values()].some(shape=>boxOverlapsPolygon(box,shape.rings));
+    }) ?? candidates.map(([dx,dy])=>({x:item.anchor.x+dx,y:item.anchor.y+dy})).find(p=>available(boxAt(item,p)) &&
+      ![...projected].some(([id,shape])=>id!==item.id&&insidePolygon(p,shape.rings)));
+    if (point) place(item,point,false);
+  }
+  // Place Diaoyu last so the annotation never pushes provincial text away from its land.
+  // Use the bundled source: worker tiles can be unavailable during initial fitting.
+  const diaoyu=islandLabels.features.find(f=>f.properties?.kind==='diaoyu-group'&&f.geometry.type==='Point');
+  if (diaoyu?.geometry.type==='Point') {
+    const size=11,name=compact?'钓鱼岛':'钓鱼岛及其\n附属岛屿',textLines=name.split('\n');
+    map.setLayoutProperty('diaoyu-group','text-field',name);
+    const coordinates=diaoyu.geometry.coordinates.slice(0,2),anchor=map.project(coordinates as [number,number]);
+    const item={id:'diaoyu',size,anchor,coordinates,halfWidth:Math.max(...textLines.map(line=>line.length))*size/2+3,halfHeight:textLines.length*size*1.2/2+3};
+    const choices=candidates.map(([dx,dy])=>({x:anchor.x+item.halfWidth+8+dx,y:anchor.y+dy}));
+    const point=choices.find(p=>p.x>anchor.x && available(boxAt(item,p)) && ![...projected.values()].some(shape=>boxOverlapsPolygon(boxAt(item,p),shape.rings))) ?? choices.find(p=>available(boxAt(item,p)));
+    if (point) {
+      place(item,point,false);
+      map.setLayoutProperty('diaoyu-group','text-field',name); map.setLayoutProperty('diaoyu-group','text-anchor','center');
+      map.setLayoutProperty('diaoyu-group','text-offset',offsets.get('diaoyu')!);
     }
+    positions.delete('diaoyu'); offsets.delete('diaoyu');
   }
   const expression: unknown[] = ['match',['get','id']];
   for (const [id,offset] of offsets) expression.push(id,['literal',offset]);
