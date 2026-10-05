@@ -163,6 +163,7 @@
 - 地图卸载或重建时释放主图、附图、ResizeObserver、事件监听和 GPU 资源；播放销毁时清理 rAF。
 - 保留基础数据、计算和图形故障的错误与重试入口；不能把加载失败解释成没有行政下级。
 - 不手工修改 `node_modules/`、`dist/`、`test-results/` 或 Python 缓存来实现功能。依赖变化同步维护 package manifest 和 lockfile。
+- 2026-10-06 用户确认验证产物仅在本地归档：`docs/validation-images/` 仅跟踪 README 引用的 `map-labels-terms/desktop-final.png`、`map-labels-terms/mobile-final.png`、`map-labels-terms/desktop-chromium-inline-terms.png`，其余截图及该目录下的 HTML／JSON 报告全部忽略，不重新提交。历史验证文档中的产物路径表示本地记录；Markdown 验证结论继续保留在仓库。
 - 2026-10-03，用户授权使用本地 Git 上传，项目已初始化为 `main` 分支，远程为 `https://github.com/wenbochang888/china-daylight-atlas.git`。后续操作先核实实际 Git 状态，提交和外部发布按用户授权范围处理。
 - 自有源码、脚本与文档采用 MIT，署名 `wenbochang888`；地图、音频与依赖的许可范围见 `THIRD_PARTY_NOTICES.md`。维护者已确认地图和现用钢琴音频允许使用与公开分发；不能据此将第三方素材改授 MIT。
 
