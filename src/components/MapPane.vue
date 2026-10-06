@@ -26,6 +26,20 @@ let provinceGeometry = emptyCollection;
 let islandAnnotations = emptyCollection;
 let labelPositions: ReturnType<typeof resizeProvinceLabels> = new Map();
 let layoutGeneration = 0;
+const presentationWaiters = new Set<() => void>();
+let cancelPresentationIdle = () => {};
+function finishPresentation() {
+  cancelPresentationIdle();
+  for (const resolve of presentationWaiters) resolve();
+  presentationWaiters.clear();
+}
+function whenPresented() {
+  if (disposed || renderFailed) return Promise.resolve();
+  return new Promise<void>(resolve => {
+    presentationWaiters.add(resolve);
+    if (!loading.value) void arrangeScene();
+  });
+}
 const zeroPadding = { top: 0, bottom: 0, left: 0, right: 0 };
 const hitLayers = ['key-province-labels', 'taiwan-label', 'labels-province', 'province-fill'];
 function provinceAt(point: { x: number; y: number }) {
@@ -67,29 +81,38 @@ async function arrangeScene() {
   updateTimePosition(); await nextTick();
   if (!map || disposed || renderFailed || attempt !== layoutGeneration) return;
   updateLabels();
-  if (alignment.value === 'center' || !container.value || !timeCard.value) return;
-  const canvas = container.value.getBoundingClientRect();
-  const safe = getComputedStyle(container.value.parentElement!);
-  const card = timeCard.value.getBoundingClientRect();
-  const controls = container.value.closest('.maps')?.querySelector('.map-view-controls')?.getBoundingClientRect();
-  let top = 12 + (parseFloat(safe.paddingTop) || 0);
-  if (controls && card.left < controls.right+8 && card.right > controls.left-8 && controls.bottom > canvas.top && controls.top < canvas.bottom)
-    top = Math.max(top, controls.bottom-canvas.top+8);
-  const available = { top, bottom: canvas.height-12-(parseFloat(safe.paddingBottom)||0) };
-  let shift = 0;
-  // Re-measure after label placement; a second pass accounts for viewport-edge callouts.
-  for (let pass = 0; pass < 2; pass++) {
-    const delta = comparisonOffset(alignment.value, sceneBounds(), available);
-    if (Math.abs(delta) < 0.5) break;
-    shift += delta;
-    map.setPadding({ ...zeroPadding, top: Math.max(0,shift*2), bottom: Math.max(0,-shift*2) });
-    updateTimePosition(); await nextTick();
-    if (!map || disposed || renderFailed || attempt !== layoutGeneration) return;
-    updateLabels();
+  if (alignment.value !== 'center' && container.value && timeCard.value) {
+    const canvas = container.value.getBoundingClientRect();
+    const safe = getComputedStyle(container.value.parentElement!);
+    const card = timeCard.value.getBoundingClientRect();
+    const controls = container.value.closest('.maps')?.querySelector('.map-view-controls')?.getBoundingClientRect();
+    let top = 12 + (parseFloat(safe.paddingTop) || 0);
+    if (controls && card.left < controls.right+8 && card.right > controls.left-8 && controls.bottom > canvas.top && controls.top < canvas.bottom)
+      top = Math.max(top, controls.bottom-canvas.top+8);
+    const available = { top, bottom: canvas.height-12-(parseFloat(safe.paddingBottom)||0) };
+    let shift = 0;
+    // Re-measure after label placement; a second pass accounts for viewport-edge callouts.
+    for (let pass = 0; pass < 2; pass++) {
+      const delta = comparisonOffset(alignment.value, sceneBounds(), available);
+      if (Math.abs(delta) < 0.5) break;
+      shift += delta;
+      map.setPadding({ ...zeroPadding, top: Math.max(0,shift*2), bottom: Math.max(0,-shift*2) });
+      updateTimePosition(); await nextTick();
+      if (!map || disposed || renderFailed || attempt !== layoutGeneration) return;
+      updateLabels();
+    }
   }
+  await nextTick();
+  if (!map || disposed || renderFailed || attempt !== layoutGeneration || !presentationWaiters.size) return;
+  cancelPresentationIdle();
+  const current = map;
+  const presented = () => { if (attempt === layoutGeneration) finishPresentation(); };
+  cancelPresentationIdle = () => { current.off('idle', presented); cancelPresentationIdle = () => {}; };
+  current.once('idle', presented); current.triggerRepaint();
 }
 function renderError(message: string) {
   renderFailed = true; ++generation; loading.value = false; error.value = message; emit('status','error');
+  finishPresentation();
 }
 function publishCamera() {
   if (!map || syncing || loading.value || renderFailed) return;
@@ -161,7 +184,7 @@ async function initialize() {
     provinceCenters = new Map(labels.features.flatMap(f => f.geometry.type === 'Point' ? [[String(f.properties?.id), f.geometry.coordinates.slice(0,2) as [number,number]] as const] : []));
     map = new maplibregl.Map({ container: container.value, style: structuredClone(mapStyle), center: [104,35], zoom: 3,
       minZoom: 0.5, maxZoom: MAX_BROWSE_ZOOM, interactive: false, renderWorldCopies: false,
-      attributionControl: false, localIdeographFontFamily: 'sans-serif', canvasContextAttributes: { preserveDrawingBuffer: true } });
+      attributionControl: false, localIdeographFontFamily: 'sans-serif', fadeDuration: 0, canvasContextAttributes: { preserveDrawingBuffer: true } });
     const primaryMap = map;
     map.on('error', event => { if (map === primaryMap) renderError(event.error?.message ?? '地图渲染失败'); });
     map.on('load', () => {
@@ -191,7 +214,7 @@ function createInset() {
   if (!props.showInset || !insetContainer.value || inset || disposed || renderFailed) return;
   const { provinces, boundaries, islandLabels } = nationalPresentation();
   const insetMap = new maplibregl.Map({ container: insetContainer.value, style: structuredClone(mapStyle), center: [113.5,13], zoom: 2.1,
-    interactive: false, attributionControl: false, renderWorldCopies: false, localIdeographFontFamily: 'sans-serif' });
+    interactive: false, attributionControl: false, renderWorldCopies: false, localIdeographFontFamily: 'sans-serif', fadeDuration: 0 });
   inset = insetMap; insetReady = false;
   insetMap.on('error', event => { if (inset === insetMap) renderError(`南海附图渲染失败：${event.error?.message ?? '请重试'}`); });
   insetMap.getCanvas().addEventListener('webglcontextlost', () => { if (inset === insetMap) renderError('南海附图图形上下文已丢失，请重试加载。'); });
@@ -232,6 +255,7 @@ watch([() => props.compactLabels, () => props.immersive, () => props.comparisonA
 });
 function cleanup() {
   disposed = true; ++generation; ++layoutGeneration; resizeObserver?.disconnect();
+  finishPresentation();
   const previousMap = map; map = undefined; solar = undefined; removeInset();
   previousMap?.remove();
 }
@@ -246,7 +270,7 @@ watch(() => props.camera, value => {
   applyCamera(value);
 });
 onMounted(initialize); onBeforeUnmount(cleanup);
-defineExpose({ isLoaded: () => !!map?.loaded(), getView: () => map ? { center: map.getCenter().toArray(), zoom: map.getZoom(), maxZoom: map.getMaxZoom(), bounds: map.getBounds().toArray() } : null,
+defineExpose({ whenPresented, isLoaded: () => !!map?.loaded(), getView: () => map ? { center: map.getCenter().toArray(), zoom: map.getZoom(), maxZoom: map.getMaxZoom(), bounds: map.getBounds().toArray() } : null,
   projectPoint: (point: [number,number]) => map?.project(point),
   getOutlineTop: () => map?.project(nationalBounds[1]).y,
   getSceneBounds: sceneBounds,

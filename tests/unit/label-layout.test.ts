@@ -15,6 +15,14 @@ function layout(width: number, compact: boolean) {
   return {styles,positions:resizeProvinceLabels(map as unknown as LibreMap,labels,compact,undefined,islands)};
 }
 describe('省名显示与避让使用相同文字',()=>{
+  it('尺寸切换时没有可放置标注也提供合法数组默认值',()=>{
+    const styles=new Map<string,unknown>();
+    const container={clientWidth:0,clientHeight:0,parentElement:null,closest:()=>null,getBoundingClientRect:()=>({left:0,top:0})};
+    const map={getContainer:()=>container,project:()=>({x:100,y:150}),setLayoutProperty:(id:string,name:string,value:unknown)=>styles.set(`${id}:${name}`,value),getSource:()=>({setData:()=>{}})};
+    const labels:FeatureCollection={type:'FeatureCollection',features:[{type:'Feature',properties:{id:'156710000',name:'台湾省',shortName:'台'},geometry:{type:'Point',coordinates:[120,24]}}]};
+    expect(resizeProvinceLabels(map as unknown as LibreMap,labels,true).size).toBe(0);
+    for(const id of ['labels-province','key-province-labels','taiwan-label'])expect(styles.get(`${id}:text-offset`)).toEqual(['literal',[0,0]]);
+  });
   it('手机和小于600px的地图中三个图层均采用12px简称',()=>{
     for(const [width,compact] of [[900,true],[599,false]] as const){
       const {styles,positions}=layout(width,compact);

@@ -2,7 +2,7 @@
 import { computed, defineAsyncComponent } from 'vue';
 import type { SolarTermOption } from '../domain/types';
 const DateControls = defineAsyncComponent(() => import('./DateControls.vue'));
-const props = defineProps<{ dates: string[]; min: string; max: string; today: string; year: number; compare: boolean; target: number; terms: SolarTermOption[]; disabled: boolean; error: string; popupHost?: HTMLElement }>();
+const props = defineProps<{ dates: string[]; min: string; max: string; today: string; year: number; compare: boolean; target: number; terms: SolarTermOption[]; disabled: boolean; error: string; selected?: boolean; popupHost?: HTMLElement }>();
 const emit = defineEmits<{ date: [index: number, value: string]; compare: []; target: [index: number]; term: [value: SolarTermOption]; retry: [] }>();
 const important: Record<string,string> = { 春分:'昼夜近等长', 夏至:'长昼节点', 秋分:'昼夜近等长', 冬至:'短昼节点' };
 const seasons = [
@@ -18,6 +18,7 @@ const groups = computed(() => seasons.map(season => ({ ...season, terms: season.
     <div class="date-sticky">
       <DateControls :dates="dates" :min="min" :max="max" :today="today" :compare="compare" :disabled="disabled" :popup-host="popupHost" @date="(index,value)=>emit('date',index,value)" @compare="emit('compare')" />
       <p class="date-range"><span>观测范围 · 两整年</span><time>{{min}} — {{max}}</time></p>
+      <p v-if="compare&&!selected" class="compare-hint">点击一个省份，比较代表点的日出、日落与昼长。</p>
     </div>
     <div class="observation-scroll">
       <slot />

@@ -2,12 +2,12 @@
 import { formatMinute } from '../domain/beijing-time';
 import UiIcon from './UiIcon.vue';
 defineProps<{ minute: number; playing: boolean; ready: boolean; musicEnabled: boolean }>();
-const emit = defineEmits<{ toggle: []; music: [] }>();
+const emit = defineEmits<{ toggle: []; music: []; edit: [event: Event] }>();
 </script>
 <template>
   <div class="clock-control" aria-label="北京时间与播放">
     <div class="clock-face">
-      <strong data-testid="clock">{{formatMinute(minute)}}</strong>
+      <button class="clock-edit" aria-label="设置北京时间" :disabled="!ready" title="设置北京时间" @click="emit('edit',$event)"><strong data-testid="clock">{{formatMinute(minute)}}</strong></button>
       <div class="clock-caption"><span>北京时间</span><small>UTC+8</small></div>
       <div class="day-progress" aria-hidden="true"><span :style="{transform:`scaleX(${minute/1440})`}"></span></div>
     </div>

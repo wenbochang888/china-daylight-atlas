@@ -36,3 +36,20 @@ export interface PlaybackSegment {
 }
 
 export type PlaybackMultiplier = 1 | 0.5;
+
+export interface ObservationScene {
+  dates: [string] | [string, string];
+  minute: number;
+  regionId?: string;
+}
+export type ExplorePreset = 'morning' | 'solstices' | 'now';
+export interface ObservationDay {
+  date: string;
+  events: SolarEvents;
+}
+export interface DayComparisonSummary {
+  dates: [string, string];
+  daylight: string;
+  sunrise: string;
+  sunset: string;
+}

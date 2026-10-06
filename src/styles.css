@@ -93,6 +93,40 @@ h1, h2, h3, h4, p, dl { margin: 0; }
 .music-button .ui-icon { width: 18px; height: 18px; }
 .clock-face { min-width: 146px; }
 .clock-face strong { display: block; font-family: var(--mono); font-size: 44px; font-weight: 400; line-height: 1.1; letter-spacing: -.06em; font-variant-numeric: tabular-nums; }
+.clock-edit { display: block; padding: 0; border: 0; border-radius: 4px; background: transparent; text-align: left; }
+.clock-edit:disabled { opacity: 1; }
+.explore-toolbar { padding: 8px 24px; border-bottom: 1px solid var(--line); flex: none; }
+.explore-actions { display: flex; gap: 8px; }
+.explore-feedback { height: 22px; margin-top: 6px; font-size: 12px; line-height: 20px; color: var(--muted); overflow: hidden; }
+.explore-feedback[role="alert"] { color: var(--note); }
+.explore-toolbar button { min-width: 0; font-size: 14px; background: var(--paper); }
+.explore-toolbar button[aria-pressed="true"] { background: var(--active); color: var(--sky); border-color: var(--active-border); }
+.explore-toolbar button:last-child:not([aria-pressed]) { margin-left: auto; }
+.compare-hint { margin-top: 10px; font-size: 12px; line-height: 1.8; color: var(--sky); }
+.event-seek { margin-top: 8px; padding: 0 8px; font-size: 12px; color: var(--sky); background: var(--paper); }
+.comparison-summary { margin: 18px 0; padding: 14px; border: 1px solid var(--active-border); border-radius: 8px; background: var(--active); }
+.comparison-summary h3 { font-size: 14px; font-weight: 600; line-height: 1.6; }
+.comparison-dates { margin-top: 8px; font: 12px/1.8 var(--mono); color: var(--muted); }
+.comparison-summary dl { margin-top: 12px; }
+.comparison-summary dl > div { display: flex; align-items: baseline; gap: 10px; margin-top: 8px; font-size: 14px; line-height: 1.7; }
+.comparison-summary dt { flex: none; color: var(--muted); }
+.comparison-summary dd { margin: 0; overflow-wrap: anywhere; }
+.comparison-note { margin-top: 10px; font-size: 12px; line-height: 1.8; color: var(--muted); }
+.dialog-context { margin: 12px 0; color: var(--muted); font-size: 14px; line-height: 1.8; overflow-wrap: anywhere; }
+.time-inputs { display: flex; align-items: end; justify-content: center; gap: 12px; margin: 24px 0; }
+.time-inputs label { display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.time-inputs input { width: 90px; height: 64px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); text-align: center; font: 32px var(--mono); }
+.time-inputs > span { font: 32px/64px var(--mono); }
+.dialog-actions { display: flex; gap: 8px; margin-top: 20px; }
+.dialog-actions button { flex: 1; min-width: 0; padding: 0 10px; font-size: 14px; }
+.primary-action { color: var(--on-solid); background: var(--play-background); border-color: var(--play-background); }
+.primary-action:hover:not(:disabled) { background: var(--play-background); border-color: var(--play-background); }
+.dialog-error { color: var(--note); font-size: 14px; line-height: 1.8; }
+.share-region { font: 600 24px/1.5 var(--display); }
+.share-link-label { display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.share-link-label textarea { width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 8px; font: 12px/1.8 var(--mono); color: var(--ink); background: var(--paper); resize: vertical; }
+.share-link-label textarea:focus-visible { outline: 2px solid var(--sky); outline-offset: 3px; }
+.copy-feedback { min-height: 24px; margin-top: 12px; font-size: 14px; line-height: 1.8; color: var(--sky); }
 .clock-caption { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 5px; font-size: 12px; color: var(--muted); }
 .clock-caption small { font: 12px var(--mono); }
 .day-progress { height: 2px; margin-top: 9px; background: var(--line); overflow: hidden; }
@@ -113,6 +147,10 @@ h1, h2, h3, h4, p, dl { margin: 0; }
 .time-scrubber input::-moz-range-thumb { width: 12px; height: 12px; border: 3px solid var(--sky); border-radius: 50%; background: var(--surface); }
 .time-ticks { display: flex; justify-content: space-between; gap: 6px; color: var(--muted); font: 11px var(--mono); }
 .maps { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); flex: 1; min-height: 0; }
+.maps { background: #e7f3f8; }
+.maps > .map-pane { opacity: 1; transition: opacity 180ms ease-out; }
+.maps.scene-changing > .map-pane { opacity: 0; transition-duration: 140ms; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .maps > .map-pane { transition: none; } }
 .maps.comparing { grid-template-columns: 1fr 1fr; }
 .map-pane { position: relative; min-width: 0; min-height: 430px; overflow: hidden; isolation: isolate; container: map-view / inline-size; background: var(--paper); }
 .comparing .map-pane + .map-pane { border-left: 1px solid var(--line); }
@@ -268,6 +306,10 @@ h1, h2, h3, h4, p, dl { margin: 0; }
   .stacked-comparison .observation-rail { height: calc(100dvh - 24px); position: sticky; top: 12px; }
 }
 @media (max-width: 600px) {
+  .explore-toolbar { padding: 8px 12px; }
+  .explore-actions { gap: 6px; }
+  .explore-feedback { height: 40px; }
+  .explore-toolbar button { flex: 1; padding: 0 4px; font-size: 13px; white-space: nowrap; }
   .atlas-app { padding: 8px 8px max(8px, env(safe-area-inset-bottom)); }
   .map-workspace { min-height: calc(100dvh - 16px); border-radius: 12px; }
   .map-toolbar { padding: 18px 16px; gap: 10px; }
@@ -328,7 +370,7 @@ h1, h2, h3, h4, p, dl { margin: 0; }
 .mobile-presentation .map-time strong { font-size: 30px; }
 
 .immersive .map-workspace { position: fixed; inset: 0; width: 100%; height: 100dvh; min-height: 0; max-width: none; border: 0; border-radius: 0; z-index: 100; overflow: hidden; animation: none; }
-.immersive .map-toolbar, .immersive .mobile-toolbar, .immersive .notice, .immersive .map-footer,
+.immersive .map-toolbar, .immersive .mobile-toolbar, .immersive .explore-toolbar, .immersive .notice, .immersive .map-footer,
 .immersive .timeline-space, .immersive .observation-rail, .immersive .page-actions { display: none; }
 .immersive .map-workspace .maps { flex: 1; min-height: 0; height: 100%; grid-template-rows: minmax(0, 1fr); }
 .immersive .map-workspace .maps.comparing { grid-template-columns: 1fr 1fr; }

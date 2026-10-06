@@ -167,9 +167,10 @@ export function resizeProvinceLabels(map: LibreMap, labels: FeatureCollection, c
     }
     positions.delete('diaoyu'); offsets.delete('diaoyu');
   }
-  const expression: unknown[] = ['match',['get','id']];
+  const expression: unknown[] = offsets.size ? ['match',['get','id']] : [];
   for (const [id,offset] of offsets) expression.push(id,['literal',offset]);
-  expression.push(['literal',[0,0]]);
+  if (offsets.size) expression.push(['literal',[0,0]]);
+  else expression.push('literal',[0,0]);
   for (const layer of ['labels-province','key-province-labels','taiwan-label']) map.setLayoutProperty(layer, 'text-offset', expression);
   (map.getSource('province-label-guides') as GeoJSONSource).setData(guides);
   return positions;
