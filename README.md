@@ -220,3 +220,6 @@ docker run --rm \
 
 
 新版资源缓存及 gzip 的 Nginx 配置见[部署缓存说明](docs/deployment-cache.md)。源码改动仍需重新构建并更新服务器产物，线上缓存配置需由维护者应用。
+
+## 友情链接
+https://linux.do
